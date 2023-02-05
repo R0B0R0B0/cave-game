@@ -1,0 +1,5 @@
+1 Player camera
+2 Map
+3 camera boundaries
+3 Start- & Endpoint
+4 other

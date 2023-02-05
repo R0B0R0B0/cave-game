@@ -9,35 +9,48 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     Transform weapon;
 
-    new Rigidbody2D rigidbody;
-
-    [SerializeField]
-    float speed = 1;
-
-
     //Weapon movemnt
     float rotationOffset;
 
+    new Rigidbody2D rigidbody;
 
+    //BY GurbluciDevlogs
 
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        rigidbody= GetComponent<Rigidbody2D>();
-    }
-
-    // Update is called once per frame
+    //I recommend 7 for the move speed, and 1.2 for the force damping
+    public Rigidbody2D rb;
+    public float moveSpeed;
+    public Vector2 forceToApply;
+    public Vector2 PlayerInput;
+    public float forceDamping;
     void Update()
     {
-        float x = Input.GetAxis("Horizontal");
-        float y = Input.GetAxis("Vertical");
+        PlayerInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
 
-        Vector2 move = new Vector2(x,y).normalized;
-
-        rigidbody.MovePosition(rigidbody.position + move * speed * Time.fixedDeltaTime);
-
+        
+    }
+    private void LateUpdate()
+    {
         RotateHead();
+    }
+    void FixedUpdate()
+    {
+        Vector2 moveForce = PlayerInput * moveSpeed;
+        moveForce += forceToApply;
+        forceToApply /= forceDamping;
+        if (Mathf.Abs(forceToApply.x) <= 0.01f && Mathf.Abs(forceToApply.y) <= 0.01f)
+        {
+            forceToApply = Vector2.zero;
+        }
+        rb.velocity = moveForce;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider.CompareTag("Enemy"))
+        {
+            forceToApply += new Vector2(-20, 0);
+            Destroy(collision.gameObject);
+        }
     }
 
     //or something

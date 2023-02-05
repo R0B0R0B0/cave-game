@@ -1,0 +1,2 @@
+scene teleporter 
+-> Heittää pelaajan reunalta toiselle reunalle. kts eka gamescene
