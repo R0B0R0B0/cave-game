@@ -9,5 +9,6 @@ public class Enemy : MonoBehaviour
     public void Damage(float damage)
     {
         health -= damage;
+        Debug.Log(name);
     }
 }
