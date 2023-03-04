@@ -8445,15 +8445,23 @@ CompositeCollider2D:
         Y: 100000000
       - X: 325000000
         Y: 100000000
+  - m_Collider: {fileID: 2012330943}
+    m_ColliderPaths:
+    - - X: 120000000
+        Y: 110000000
+      - X: -120000000
+        Y: 110000000
+      - X: -120000000
+        Y: 50000000
+      - X: 120000000
+        Y: 50000000
   m_CompositePaths:
     m_Paths:
-    - - {x: 32.499973, y: 10}
+    - - {x: 11.99997, y: -6}
+      - {x: 12.00003, y: 10}
+      - {x: 32.5, y: 10.00003}
       - {x: 32.499973, y: 22}
       - {x: -12, y: 21.999971}
-      - {x: -11.99997, y: 10}
-    - - {x: 11.99997, y: -6}
-      - {x: 11.99997, y: 6}
-      - {x: -12, y: 5.999971}
       - {x: -11.99997, y: -6}
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0.00005
@@ -8485,7 +8493,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2012330937}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 0
