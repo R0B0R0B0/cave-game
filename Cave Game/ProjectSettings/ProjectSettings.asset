@@ -569,7 +569,9 @@ PlayerSettings:
   webGLLinkerTarget: 1
   webGLThreadsSupport: 0
   webGLDecompressionFallback: 0
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    Standalone: USE_PHYSICS2D;USE_CINEMACHINE;TMP_PRESENT
+    Windows Store Apps: USE_PHYSICS2D;USE_CINEMACHINE;TMP_PRESENT
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}
