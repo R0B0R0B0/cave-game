@@ -244,7 +244,7 @@ MonoBehaviour:
     initializeNewVariables: 1
   allowSimultaneousConversations: 0
   interruptActiveConversations: 0
-  includeSimStatus: 0
+  includeSimStatus: 1
   instantiateDatabase: 0
   preloadResources: 1
   warmUpConversationController: 0
@@ -253,7 +253,7 @@ MonoBehaviour:
   allowOnlyOneInstance: 1
   onStartTriggerWaitForSaveDataApplied: 0
   dialogueTimeMode: 0
-  debugLevel: 2
+  debugLevel: 3
 --- !u!114 &11471062
 MonoBehaviour:
   m_ObjectHideFlags: 0

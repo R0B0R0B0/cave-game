@@ -95,7 +95,6 @@ public class EnemyAI : MonoBehaviour
             if (hit.collider.gameObject.tag == "Player")
             {
                 target = hit.point;
-                Debug.Log("hello");
             }   
         }
     }

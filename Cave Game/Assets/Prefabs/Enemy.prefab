@@ -83,7 +83,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -129,7 +129,6 @@ GameObject:
   - component: {fileID: 4295701166021278416}
   - component: {fileID: 4295701166021278415}
   - component: {fileID: 7248451084633422462}
-  - component: {fileID: 428095025329510339}
   m_Layer: 7
   m_Name: Enemy
   m_TagString: Enemy
@@ -254,20 +253,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 127f4cced29966a4abbba94bce4d4033, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eyes: {fileID: 0}
-  target: {fileID: 0}
+  player: {fileID: 0}
+  backgroundLayers:
+    serializedVersion: 2
+    m_Bits: 0
   speed: 200
   nextWaypointDistance: 3
---- !u!114 &428095025329510339
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4295701166021278420}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3789743761d892149a132e18c26d08e6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentState: {fileID: 0}
+  rigidbody: {fileID: 0}
