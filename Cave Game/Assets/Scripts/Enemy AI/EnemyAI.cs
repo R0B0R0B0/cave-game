@@ -2,28 +2,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Pathfinding;
-using UnityEngine.Android;
-using UnityEngine.UIElements;
+
 
 public class EnemyAI : MonoBehaviour
 {
-
-    public Transform eyes;
+    public Transform player;
 
     public LayerMask backgroundLayers;
-
-    public Transform target;
-
 
     public float speed = 200f;
     public float nextWaypointDistance = 3f;
 
+    //Pathfinding
     Path path;
     int currentWaypoint = 0;
     bool reachedEndOfPath = false;
 
     Seeker seeker;
-    new Rigidbody2D rigidbody;
+
+    Vector3 target;
+
+    //Basic stuff
+    public new Rigidbody2D rigidbody;
+
+    //See stuff
 
     // Start is called before the first frame update
     void Start()
@@ -37,9 +39,10 @@ public class EnemyAI : MonoBehaviour
 
     public void UpdatePath()
     {
+        if(target == transform.position) { return; }
         if(seeker.IsDone())
         {
-            seeker.StartPath(rigidbody.position, target.position, OnPathComplete);
+            seeker.StartPath(rigidbody.position, target, OnPathComplete);
         }
         
     }
@@ -55,7 +58,7 @@ public class EnemyAI : MonoBehaviour
 
     private void FixedUpdate()
     {
-        CanSeePlayer();
+       CanSeePlayer();
 
         if (path == null)
         {
@@ -84,18 +87,22 @@ public class EnemyAI : MonoBehaviour
 
     void CanSeePlayer()
     {
-        Debug.Log(Vector3.SignedAngle(transform.position, target.position,Vector3.forward));
-        if (Vector2.SignedAngle(transform.position,target.position) < 45 + transform.position.z && Vector2.SignedAngle(transform.position, target.position) > -45 + transform.position.z)
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, (player.position - transform.position).normalized,10,backgroundLayers);
+        
+        Debug.DrawRay(transform.position, (player.position - transform.position).normalized * 10, Color.magenta);
+        if (hit)
         {
-            
-            RaycastHit2D hit;
-            hit = Physics2D.Raycast(transform.position, target.position, 7, backgroundLayers);
-            Debug.DrawRay(transform.position,target.position,Color.magenta);
-            if (hit.collider != null)
+            if (hit.collider.gameObject.tag == "Player")
             {
+                target = hit.point;
                 Debug.Log("hello");
-            }
+            }   
         }
     }
 
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(target, 0.5f);
+    }
 }
