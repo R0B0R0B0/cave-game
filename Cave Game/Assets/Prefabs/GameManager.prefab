@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 531346870}
   - component: {fileID: 531346869}
   - component: {fileID: 531346868}
+  - component: {fileID: 806753799}
   m_Layer: 0
   m_Name: Camera
   m_TagString: MainCamera
@@ -119,6 +120,39 @@ MonoBehaviour:
   m_CameraActivatedEvent:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &806753799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 531346867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
 --- !u!1 &5086618126247293604
 GameObject:
   m_ObjectHideFlags: 0
@@ -129,6 +163,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5086618126247293606}
   - component: {fileID: 5086618126247293605}
+  - component: {fileID: 7323126864803706533}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: GameController
@@ -167,3 +202,19 @@ MonoBehaviour:
   startPosition: {fileID: 0}
   player: {fileID: 3093900444289342606, guid: fdaea889c1f8d7c43b1171c36a6a1557, type: 3}
   hasPlayer: 1
+--- !u!114 &7323126864803706533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5086618126247293604}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77622195794c24d40ae39870a493428a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackUIPrefab: {fileID: 6047470053083823153, guid: 6547416986edbb741aff0ca07d670328, type: 3}
+  attackUI: {fileID: -2178124595860152085, guid: 6547416986edbb741aff0ca07d670328, type: 3}
+  canvas: {fileID: 0}
+  defaultEnemy: {fileID: 11400000, guid: 1b4ea56f7af74cd429901b28234525e9, type: 2}
