@@ -32,6 +32,7 @@ public class GameManager : MonoBehaviour
     public GameObject player;
 
     public bool hasPlayer;
+    public float health;
 
     public void OnEndPositionTriggered(int exitID)
     {

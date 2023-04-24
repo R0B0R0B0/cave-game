@@ -16,6 +16,8 @@ public class AttackUI : MonoBehaviour
     public Text enemyName;
     public Image enemyImage;
 
+    //Player
+    public Transform playerTranform;
 
     public Action onAttackButtonPressed;
 
