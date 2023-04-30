@@ -5,15 +5,16 @@ using UnityEngine;
 
 public class Pellet : MonoBehaviour
 {
+    public float lifeTime = 2f;
+
     private IEnumerator Start()
     {
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(lifeTime);
         Destroy(gameObject);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log(collision.tag);
         if (collision.CompareTag("Player"))
         {
             GameManager.Instance.GetComponent<FightManager>().PelletHit();

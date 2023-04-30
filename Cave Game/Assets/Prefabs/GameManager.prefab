@@ -65,8 +65,9 @@ MonoBehaviour:
   attackUI: {fileID: -2178124595860152085, guid: 6547416986edbb741aff0ca07d670328, type: 3}
   canvas: {fileID: 0}
   defaultEnemy: {fileID: 11400000, guid: 1b4ea56f7af74cd429901b28234525e9, type: 2}
-  pee: {fileID: 0}
+  pee: {fileID: 2753358895698011988, guid: 4e763fc73fa39104b9475f4a8f06b496, type: 3}
   spawnPoint: {fileID: 0}
+  playerSpawnPoint: {fileID: 0}
   playerTransform: {fileID: 0}
   playerRigidbody: {fileID: 0}
   speed: 1

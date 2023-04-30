@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -30,6 +31,8 @@ public class FightManager : MonoBehaviour
     public GameObject pee;
     public Transform spawnPoint;
 
+    public Transform playerSpawnPoint;
+
     BattleState state;
 
     Action attackButtonPressed;
@@ -42,10 +45,12 @@ public class FightManager : MonoBehaviour
 
     //player stuff
     float playerHealth = 10;
+    float playerMaxHealth = 10;
     float playerDamage = 1;
 
     //Enemy stuff
     float enemyHealth = 10;
+    float enemyMaxHealth = 10;
     float enemyDamage = 1;
 
     void Start()
@@ -60,21 +65,18 @@ public class FightManager : MonoBehaviour
     private void FixedUpdate()
     {
         //Player movement
-        float x = Input.GetAxis("Horizontal");
-        float y = Input.GetAxis("Vertical");
+        float x = Input.GetAxisRaw("Horizontal");
+        float y = Input.GetAxisRaw("Vertical");
 
-        Vector3 move = transform.right * x + transform.up * y; move = move.normalized;  move *= Time.deltaTime;
+        Vector3 move = transform.right * x + transform.up * y; move = move.normalized; 
 
-        playerRigidbody.MovePosition(playerTransform.transform.position + move * speed);
+        playerRigidbody.velocity = move * speed * Time.fixedDeltaTime;
 
-        if(playerRigidbody.velocity.sqrMagnitude < 0.1 ) { playerRigidbody.velocity = Vector2.zero; }
+       // if(playerRigidbody.velocity.sqrMagnitude < 0.1 ) { playerRigidbody.velocity = Vector2.zero; }
     }
 
-    public void OnButtonPressed()
-    {
-        StartFight(defaultEnemy);
-    }
-
+    #region Fight Functions
+    //Start/End
     public void StartFight(Enemy enemy)
     {
         state = BattleState.START;
@@ -82,78 +84,140 @@ public class FightManager : MonoBehaviour
 
         state = BattleState.PLAYERTURN;
     }
-
     public void EndFight()
     {
         attackUI.mainPanel.SetActive(false);
     }
-
+    //setup
     void SetupBattle()
     {
         attackUI.mainPanel.SetActive(true);
     }
-
+    //Player
     void PlayerTurn()
-    {
-
-    }
-
-    void PlayerAttack()
-    {
-        enemyHealth -= playerDamage;
-
-        if(enemyHealth <= 0)
+    {       
+        //Check
+        if (state != BattleState.PLAYERTURN)
         {
-            state = BattleState.WON;
+            return;
         }
 
-            state = BattleState.ENEMYTURN;
-            EnemyTurn();
-        
+        //UI
+        Debug.Log("2");
+        attackUI.peitto.SetActive(true);
     }
+    void PlayerAttack()
+    {
+        //Check
+        if (state != BattleState.PLAYERTURN)
+        {
+            return;
+        }
 
+        //UI
+
+        //Logic
+        enemyHealth -= playerDamage;
+        OnEnemyHealthChanged();
+
+        if (enemyHealth <= 0)
+        {
+            state = BattleState.WON;
+            EndFight();
+        }
+        
+        state = BattleState.ENEMYTURN;
+        EnemyTurn();
+    } 
+    //Enemy
     void EnemyTurn()
     {
-        EnemyAttack();
+        //Check
+        if (state != BattleState.ENEMYTURN)
+        {
+            return;
+        }
+        //UI 
+
+
+        //Action
+        StartCoroutine(EnemyAttack());
     }
-    void EnemyAttack()
+    IEnumerator EnemyAttack()
     {
-        playerTransform.position = Vector3.zero;
+        //Check
+        if (state != BattleState.ENEMYTURN)
+        {
+            yield return null;
+        }
 
-        StartCoroutine("AttackCourontine");
-            
+        Debug.Log("1");
+        //UI
+        attackUI.peitto.SetActive(false);
+
+
+        //Action
+        playerTransform.position = playerSpawnPoint.position;
+
+        for (int i = 0; i < 10; i++)
+        {
+            spawnPoint.position = new Vector2(playerTransform.position.x, spawnPoint.position.y);
+            Instantiate(pee, spawnPoint.position, spawnPoint.rotation);
+            yield return new WaitForSeconds(.5f);
+        }
+
+        yield return new WaitForSeconds(pee.GetComponent<Pellet>().lifeTime/2);
+
         state = BattleState.PLAYERTURN;
-    }
+        PlayerTurn();
+        yield return null;
 
+    }
+    #endregion
+
+    //Hit callbacks
     public void PelletHit()
     {
         playerHealth -= enemyDamage;
+        OnPlayerHealthChanged();
 
         if (playerHealth <= 0)
         {
             state = BattleState.LOST;
+            EndFight();
         }
     }
 
+    #region Callbacks
+
+    //Button callbacks
     public void OnAttackButton()
     {
         Debug.Log(state);
-        if(state != BattleState.PLAYERTURN)
+        if (state != BattleState.PLAYERTURN)
         {
             return;
         }
-        
+
         PlayerAttack();
     }
 
-    IEnumerator AttackCourontine()
+    public void OnButtonPressed()
     {
-        for (int i = 0; i < 5; i++)
-        {
-            Instantiate(pee, spawnPoint.position, spawnPoint.rotation);
-            spawnPoint.position = new Vector2 (playerTransform.position.x, spawnPoint.position.y);
-            yield return new WaitForSeconds(.2f);
-        }
-        yield return null;
+        StartFight(defaultEnemy);
     }
+    #endregion
+
+    #region UI Functions
+    //UI changes
+
+    public void OnPlayerHealthChanged()
+    {
+        attackUI.playerHealthbar.SetValueWithoutNotify(playerHealth/playerMaxHealth);
+    }
+    public void OnEnemyHealthChanged()
+    {
+        attackUI.enemyHealthbar.SetValueWithoutNotify(enemyHealth / enemyMaxHealth);
+    }
+    #endregion
 }
