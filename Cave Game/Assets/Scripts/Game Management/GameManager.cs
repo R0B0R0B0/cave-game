@@ -72,6 +72,4 @@ public class GameManager : MonoBehaviour
         
         LevelManager.LoadScene(name);
     }
-
-
 }

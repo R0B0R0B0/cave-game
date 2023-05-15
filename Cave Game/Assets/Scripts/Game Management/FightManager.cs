@@ -151,22 +151,31 @@ public class FightManager : MonoBehaviour
             yield return null;
         }
 
-        Debug.Log("1");
         //UI
         attackUI.peitto.SetActive(false);
 
-
         //Action
         playerTransform.position = playerSpawnPoint.position;
-
         for (int i = 0; i < 10; i++)
         {
             spawnPoint.position = new Vector2(playerTransform.position.x, spawnPoint.position.y);
             Instantiate(pee, spawnPoint.position, spawnPoint.rotation);
+
+            float x = 0;
+
+            float a = 1;
+            float b = 2;
+
+            float k = 0;
+            float h = 0; 
+
+            float y = a * Mathf.Sin((x - h) / b) + k;
+    
+
             yield return new WaitForSeconds(.5f);
         }
 
-        yield return new WaitForSeconds(pee.GetComponent<Pellet>().lifeTime/2);
+        yield return new WaitForSeconds(1);
 
         state = BattleState.PLAYERTURN;
         PlayerTurn();
