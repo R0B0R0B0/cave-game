@@ -6,7 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    static LevelManager LevelManager = new LevelManager();
+    public LevelManager LevelManager = new();
+    public FightManager FightManager = new();
 
     #region Awake - Singleton & Dont destroy on load
     public static GameManager Instance { get; private set; }

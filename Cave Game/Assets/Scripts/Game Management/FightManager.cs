@@ -25,6 +25,7 @@ public class FightManager : MonoBehaviour
 
     public GameObject attackUIPrefab;
     public AttackUI attackUI;
+    public GameObject playArea;
     public Transform canvas;
 
     public Enemy defaultEnemy;
@@ -103,8 +104,8 @@ public class FightManager : MonoBehaviour
         }
 
         //UI
-        Debug.Log("2");
         attackUI.peitto.SetActive(true);
+        playArea.SetActive(false);
     }
     void PlayerAttack()
     {
@@ -153,6 +154,7 @@ public class FightManager : MonoBehaviour
 
         //UI
         attackUI.peitto.SetActive(false);
+        playArea.SetActive(true);
 
         //Action
         playerTransform.position = playerSpawnPoint.position;
