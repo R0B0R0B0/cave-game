@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab3860be5dcc1324383d37e4889cad2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FightManager: {fileID: 0}
   startPosition: {fileID: 0}
   player: {fileID: 3093900444289342606, guid: fdaea889c1f8d7c43b1171c36a6a1557, type: 3}
   hasPlayer: 1
@@ -61,8 +62,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77622195794c24d40ae39870a493428a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackUIPrefab: {fileID: 0}
+  attackUIPrefab: {fileID: 6047470053083823153, guid: 6547416986edbb741aff0ca07d670328, type: 3}
   attackUI: {fileID: -2178124595860152085, guid: 6547416986edbb741aff0ca07d670328, type: 3}
+  playArea: {fileID: 0}
   canvas: {fileID: 0}
   defaultEnemy: {fileID: 11400000, guid: 1b4ea56f7af74cd429901b28234525e9, type: 2}
   pee: {fileID: 2753358895698011988, guid: 4e763fc73fa39104b9475f4a8f06b496, type: 3}

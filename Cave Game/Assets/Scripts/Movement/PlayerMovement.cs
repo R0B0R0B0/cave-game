@@ -6,9 +6,6 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField]
-    Transform weapon;
-
     //Weapon movemnt
     float rotationOffset;
 
@@ -24,13 +21,7 @@ public class PlayerMovement : MonoBehaviour
     public Animator animator;
     void Update()
     {
-        PlayerInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
-
-        
-    }
-    private void LateUpdate()
-    {
-        RotateHead();
+        PlayerInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;  
     }
     void FixedUpdate()
     {
@@ -56,18 +47,5 @@ public class PlayerMovement : MonoBehaviour
             forceToApply += collision.relativeVelocity.normalized * 10;
             Destroy(collision.gameObject);
         }
-    }
-
-    void RotateHead()
-    {
-        Vector3 mousePos = Input.mousePosition;
-        mousePos.z= 0;
-        Vector3 objectPos = Camera.main.WorldToScreenPoint(transform.position);
-
-        mousePos.x -= objectPos.x;
-        mousePos.y -= objectPos.y;
-
-        float angle = Mathf.Atan2(mousePos.y,mousePos.x) * Mathf.Rad2Deg;
-        weapon.rotation = Quaternion.Euler(new Vector3(0, 0, angle + rotationOffset));
     }
 }

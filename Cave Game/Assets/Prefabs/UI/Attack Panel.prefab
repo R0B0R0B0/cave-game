@@ -774,7 +774,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2056273511355678785
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1687,7 +1687,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainPanel: {fileID: 2056273511355678790}
+  topPanel: {fileID: 0}
+  middlePanel: {fileID: 0}
+  bottomPanel: {fileID: 0}
+  peitto: {fileID: 0}
   attackButton: {fileID: 2056273510746000757}
   enemyName: {fileID: 0}
   enemyImage: {fileID: 0}
+  enemyHealthbar: {fileID: 0}
+  playerHealthbar: {fileID: 0}
   playerTranform: {fileID: 0}
