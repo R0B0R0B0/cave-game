@@ -2,17 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Lever : MonoBehaviour
+public class Lever : Usable
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public Animator animator;
+    public SpriteRenderer renderer;
+    public Sprite used;
+    public Collider2D colldier;
 
-    // Update is called once per frame
-    void Update()
+    bool hasBeenUsed;
+    public override void Use()
     {
-        
+        if (hasBeenUsed) { return; }
+        base.Use();
+
+        animator.SetTrigger("Activate");
+        renderer.sprite = used;
+        colldier.gameObject.SetActive(false);
+        hasBeenUsed = true;
     }
 }

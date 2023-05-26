@@ -4,10 +4,15 @@ using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 
+public enum PlayerDirection
+{
+    Up,Right,Down,Left
+}
+
 public class PlayerMovement : MonoBehaviour
 {
-    //Weapon movemnt
-    float rotationOffset;
+    //Rotation
+    PlayerDirection faceDirection;
 
     //BY GurbluciDevlogs :)
 
@@ -38,6 +43,19 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("IsMoving", true);
         }
         rb.velocity = moveForce;
+
+        if(moveForce != Vector2.zero)
+        {
+            faceDirection = (moveForce.x, moveForce.y)
+switch
+            {
+                (0, 1) => PlayerDirection.Up,
+                (0, -1) => PlayerDirection.Down,
+                (1, 0) => PlayerDirection.Right,
+                (-1, 0) => PlayerDirection.Left,
+                _ => PlayerDirection.Right,
+            };
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
