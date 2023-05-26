@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab3860be5dcc1324383d37e4889cad2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FightManager: {fileID: 0}
+  FightManager: {fileID: 7323126864803706533}
   startPosition: {fileID: 0}
   player: {fileID: 3093900444289342606, guid: fdaea889c1f8d7c43b1171c36a6a1557, type: 3}
   hasPlayer: 1
