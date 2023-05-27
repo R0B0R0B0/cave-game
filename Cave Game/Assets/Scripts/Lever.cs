@@ -15,6 +15,7 @@ public class Lever : Usable
         if (hasBeenUsed) { return; }
         base.Use();
 
+        GameManager.Instance.ChangeView(Cameras.Rock);
         animator.SetTrigger("Activate");
         renderer.sprite = used;
         colldier.gameObject.SetActive(false);

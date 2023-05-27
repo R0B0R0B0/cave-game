@@ -13,19 +13,24 @@ public enum BattleState
 public class FightManager : MonoBehaviour
 {
     /*What fight should have
+    Demo
     1. The person against it
         -hp
         -attack
         -defense
         -more stats
+
+    //Later
     2. What items and stats player has
 
 
     */
 
     public GameObject attackUIPrefab;
-    public AttackUI attackUI;
+    public GameObject fightArea;
+    AttackUI attackUI;
     public GameObject playArea;
+    public BattleArea battleArea;
     public Transform canvas;
 
     public Enemy defaultEnemy;
@@ -36,7 +41,12 @@ public class FightManager : MonoBehaviour
 
     BattleState state;
 
+    //Actions
     Action attackButtonPressed;
+
+    //Refenrences to instantiated gameobjects
+    GameObject attackUIGameObject = null;
+
 
     //In the battle
     public Transform playerTransform;
@@ -56,11 +66,19 @@ public class FightManager : MonoBehaviour
 
     void Start()
     {
-        attackUI = attackUIPrefab.GetComponent<AttackUI>();
+        //Setup the attackUI game object
+        if (attackUIGameObject == null)
+        {
+            attackUIGameObject = Instantiate(attackUIPrefab,transform.GetChild(0));
+        }
+        attackUI = attackUIGameObject.GetComponent<AttackUI>();
+
+        //Callback to button press in attakcUI
+        attackUI.onAttackButtonPressed += OnAttackButton;
+
         attackUI.mainPanel.SetActive(false);
 
-        //Callback to button press in attakcUi
-        attackUI.onAttackButtonPressed += OnAttackButton;
+
     }
 
     private void FixedUpdate()
@@ -76,11 +94,35 @@ public class FightManager : MonoBehaviour
        // if(playerRigidbody.velocity.sqrMagnitude < 0.1 ) { playerRigidbody.velocity = Vector2.zero; }
     }
 
+    #region Setup Functions
+
+    void SetPlayArea(BoxCollider2D[] colliders, Vector2 size)
+    {
+        float thickness = 1;
+
+        //Up
+        colliders[0].size = new Vector2(size.x, thickness);
+        colliders[0].offset = new Vector2(0, size.y / 2 + thickness / 2);
+        //Dowm
+        colliders[1].size = new Vector2(size.x, thickness);
+        colliders[1].offset = new Vector2(0, -size.y / 2 - thickness / 2);
+        //Right
+        colliders[0].size = new Vector2(thickness, size.y);
+        colliders[0].offset = new Vector2(size.x / 2 + thickness / 2, 0);
+        //Left
+        colliders[0].size = new Vector2(thickness, size.y);
+        colliders[0].offset = new Vector2(0, -size.x / 2 - thickness / 2);
+
+    }
+
+    #endregion
+
     #region Fight Functions
     //Start/End
     public void StartFight(Enemy enemy)
     {
         state = BattleState.START;
+
         SetupBattle();
 
         state = BattleState.PLAYERTURN;
@@ -92,7 +134,12 @@ public class FightManager : MonoBehaviour
     //setup
     void SetupBattle()
     {
+        Vector2 size = Vector2.one;
         attackUI.mainPanel.SetActive(true);
+
+        SetPlayArea(battleArea.colliders, size);
+
+        GameManager.Instance.ChangeView(Cameras.Battle);
     }
     //Player
     void PlayerTurn()

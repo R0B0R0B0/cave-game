@@ -1,8 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System;
 using UnityEngine.SceneManagement;
+using Cinemachine;
+
+public enum Cameras
+{
+    Base,Far,Battle,Rock
+}
 
 public class GameManager : MonoBehaviour
 {
@@ -26,6 +29,12 @@ public class GameManager : MonoBehaviour
         SceneManager.activeSceneChanged += OnSceneLoaded;
     }
     #endregion
+
+    [Header("Cinemachine")]
+    [SerializeField]
+    CinemachineVirtualCamera[] cameras;
+    //CinemachineVirtualCamera Far;
+   // CinemachineVirtualCamera Fight;
 
     [Header("Level Management")]
     public Transform startPosition;
@@ -73,4 +82,30 @@ public class GameManager : MonoBehaviour
         
         LevelManager.LoadScene(name);
     }
+
+    public void ChangeView(Cameras camera)
+    {
+        if (!CameraController.IsActiveCamera(cameras[(int)camera]))
+        {
+            CameraController.SwitchCamera(cameras[(int)camera]);
+        }
+    }
+
+    private void OnEnable()
+    {
+        for (int i = 0; i < cameras.Length; i++)
+        {
+            CameraController.Register(cameras[i]);
+        }
+        CameraController.SwitchCamera(cameras[0]);
+    }
+
+    private void OnDisable()
+    {
+        for (int i = 0; i < cameras.Length; i++)
+        {
+            CameraController.UnRegister(cameras[i]);
+        }
+    }
+
 }

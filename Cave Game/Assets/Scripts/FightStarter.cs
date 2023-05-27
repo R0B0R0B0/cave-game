@@ -8,7 +8,6 @@ public class FightStarter : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log("Triggered");
         if (collision.CompareTag("Player"))
         {
             Debug.Log("Fight start");
