@@ -5,19 +5,20 @@ TagManager:
   serializedVersion: 2
   tags:
   - Enemy
+  - FightUI
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Editor
   - Water
   - UI
   - Player
   - Enemies
   - Walls
   - Background
-  - 
-  - 
+  - Battle Object
+  - Battle Area
   - 
   - 
   - 

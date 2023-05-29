@@ -1,12 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System;
 using UnityEngine.SceneManagement;
+using Cinemachine;
+
+public enum Cameras
+{
+    Base,Far,Battle,Rock
+}
 
 public class GameManager : MonoBehaviour
 {
-    static LevelManager LevelManager = new LevelManager();
+    public LevelManager LevelManager = new();
+    public FightManager FightManager = new();
 
     #region Awake - Singleton & Dont destroy on load
     public static GameManager Instance { get; private set; }
@@ -26,12 +30,22 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
+    [Header("Cinemachine")]
+    [SerializeField]
+    CinemachineVirtualCamera[] cameras;
+    //CinemachineVirtualCamera Far;
+   // CinemachineVirtualCamera Fight;
+
     [Header("Level Management")]
     public Transform startPosition;
     [Header("Prefabs")]
+    public GameObject playerPrefab;
+
+
     public GameObject player;
 
     public bool hasPlayer;
+    public float health;
 
     public void OnEndPositionTriggered(int exitID)
     {
@@ -44,11 +58,11 @@ public class GameManager : MonoBehaviour
         startPosition = GameObject.FindGameObjectWithTag("Respawn").transform;
         if (startPosition != null)
         {
-            Instantiate(player, startPosition);
+            player = Instantiate(player, startPosition);
         }
         else
         {
-            Instantiate(player,Vector3.zero,Quaternion.identity);
+            player = Instantiate(player,Vector3.zero,Quaternion.identity);
         }
 
     }
@@ -72,5 +86,29 @@ public class GameManager : MonoBehaviour
         LevelManager.LoadScene(name);
     }
 
+    public void ChangeView(Cameras camera)
+    {
+        if (!CameraController.IsActiveCamera(cameras[(int)camera]))
+        {
+            CameraController.SwitchCamera(cameras[(int)camera]);
+        }
+    }
+
+    private void OnEnable()
+    {
+        for (int i = 0; i < cameras.Length; i++)
+        {
+            CameraController.Register(cameras[i]);
+        }
+        CameraController.SwitchCamera(cameras[0]);
+    }
+
+    private void OnDisable()
+    {
+        for (int i = 0; i < cameras.Length; i++)
+        {
+            CameraController.UnRegister(cameras[i]);
+        }
+    }
 
 }

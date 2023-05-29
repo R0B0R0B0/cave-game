@@ -4,13 +4,15 @@ using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 
+public enum PlayerDirection
+{
+    Up,Right,Down,Left
+}
+
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField]
-    Transform weapon;
-
-    //Weapon movemnt
-    float rotationOffset;
+    //Rotation
+    PlayerDirection faceDirection;
 
     //BY GurbluciDevlogs :)
 
@@ -24,13 +26,7 @@ public class PlayerMovement : MonoBehaviour
     public Animator animator;
     void Update()
     {
-        PlayerInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
-
-        
-    }
-    private void LateUpdate()
-    {
-        RotateHead();
+        PlayerInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;  
     }
     void FixedUpdate()
     {
@@ -47,6 +43,19 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("IsMoving", true);
         }
         rb.velocity = moveForce;
+
+        if(moveForce != Vector2.zero)
+        {
+            faceDirection = (moveForce.x, moveForce.y)
+switch
+            {
+                (0, 1) => PlayerDirection.Up,
+                (0, -1) => PlayerDirection.Down,
+                (1, 0) => PlayerDirection.Right,
+                (-1, 0) => PlayerDirection.Left,
+                _ => PlayerDirection.Right,
+            };
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -56,18 +65,5 @@ public class PlayerMovement : MonoBehaviour
             forceToApply += collision.relativeVelocity.normalized * 10;
             Destroy(collision.gameObject);
         }
-    }
-
-    void RotateHead()
-    {
-        Vector3 mousePos = Input.mousePosition;
-        mousePos.z= 0;
-        Vector3 objectPos = Camera.main.WorldToScreenPoint(transform.position);
-
-        mousePos.x -= objectPos.x;
-        mousePos.y -= objectPos.y;
-
-        float angle = Mathf.Atan2(mousePos.y,mousePos.x) * Mathf.Rad2Deg;
-        weapon.rotation = Quaternion.Euler(new Vector3(0, 0, angle + rotationOffset));
     }
 }
