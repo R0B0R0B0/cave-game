@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/MainMenu.uss?fileID=7433441132597879392&amp;guid=5b0f66716d451204d96094a47b8306ce&amp;type=3#MainMenu" />
+    <ui:VisualElement style="flex-grow: 1;">
+        <ui:VisualElement style="flex-grow: 1; justify-content: center; align-items: center;">
+            <ui:Label text="Cave Game Demo" display-tooltip-when-elided="true" class="text" />
+        </ui:VisualElement>
+        <ui:VisualElement style="align-items: center; justify-content: center; flex-grow: 1;">
+            <ui:Button text="Play" display-tooltip-when-elided="true" class="button" />
+            <ui:Button text="Settings" display-tooltip-when-elided="true" class="button" style="height: 30%; width: 200px;" />
+            <ui:Button text="Quit" display-tooltip-when-elided="true" class="button" style="height: 30%; width: 200px;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement style="height: 30%;" />
+</ui:UXML>

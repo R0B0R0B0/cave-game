@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: smile
   m_EditorClassIdentifier: 
   name: Smile
-  health: 100
-  damage: 100
-  defense: 100
+  health: 10
+  damage: 10
+  defense: 10
   enemyFight: {fileID: 5975824497874346535, guid: 9d7f535505a46ce45bda5283ea3808b7, type: 3}
   attackOrder: 01000000020000000300000002000000030000000200000001000000030000000200000001000000
   playAreaSize: {x: 5, y: 2.5}

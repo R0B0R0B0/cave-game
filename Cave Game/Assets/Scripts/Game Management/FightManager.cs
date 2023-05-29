@@ -32,9 +32,10 @@ public class FightManager : MonoBehaviour
     public GameObject battleAreaObject;
     public BattleArea battleArea;
     public Transform canvas;
+    public GameObject borderGfx;
 
 
-    public GameObject pee;
+    //  public GameObject pee;
     public Transform spawnPoint;
 
     public Transform playerSpawnPoint;
@@ -74,6 +75,14 @@ public class FightManager : MonoBehaviour
     //Other
     bool hasAnimationEnded;
 
+    //PLayer movement in fight
+    //I recommend 7 for the move speed, and 1.2 for the force damping - GurbluciDevlogs
+    public float moveSpeed;
+    Vector2 forceToApply;
+    Vector2 playerInput;
+    public float forceDamping;
+    bool canMove;
+
     void Start()
     {
         //Setup the attackUI game object
@@ -88,7 +97,7 @@ public class FightManager : MonoBehaviour
             {
                 Debug.Log("Creating fight ui");
                 attackUIGameObject = Instantiate(attackUIPrefab, canvas);
-            }       
+            }
         }
         attackUI = attackUIGameObject.GetComponent<AttackUI>();
 
@@ -100,17 +109,25 @@ public class FightManager : MonoBehaviour
 
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
-        //Player movement
-        float x = Input.GetAxisRaw("Horizontal");
-        float y = Input.GetAxisRaw("Vertical");
+        playerInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
+    }
 
-        Vector3 move = transform.right * x + transform.up * y; move = move.normalized; 
+    void FixedUpdate()
+    {
+        Vector2 moveForce = playerInput * moveSpeed;
+        moveForce += forceToApply;
+        forceToApply /= forceDamping;
+        if (Mathf.Abs(forceToApply.x) <= 0.01f && Mathf.Abs(forceToApply.y) <= 0.01f)
+        {
+            forceToApply = Vector2.zero;
+        }
 
-        playerRigidbody.velocity = move * speed * Time.fixedDeltaTime;
-
-       // if(playerRigidbody.velocity.sqrMagnitude < 0.1 ) { playerRigidbody.velocity = Vector2.zero; }
+        if (canMove)
+        {
+            playerRigidbody.velocity = moveForce;
+        }
     }
 
     #region Setup Functions
@@ -123,7 +140,7 @@ public class FightManager : MonoBehaviour
         attackUI.mainPanel.SetActive(true);
 
         //Edits the colliders
-        SetPlayArea(battleArea.colliders, size);
+        SetPlayArea(battleArea.colliders, size, borderGfx);
 
         //Changes from the current camera to fight camera
         GameManager.Instance.ChangeView(Cameras.Battle);
@@ -138,7 +155,7 @@ public class FightManager : MonoBehaviour
 
     }
 
-    void SetPlayArea(BoxCollider2D[] colliders, Vector2 size)
+    void SetPlayArea(BoxCollider2D[] colliders, Vector2 size, GameObject gfx)
     {
         float thickness = .1f;
 
@@ -155,6 +172,7 @@ public class FightManager : MonoBehaviour
         colliders[3].size = new Vector2(thickness, size.y);
         colliders[3].offset = new Vector2(-size.x / 2 - thickness / 2, 0);
 
+        gfx.transform.localScale = size;
     }
 
     #endregion
@@ -163,9 +181,9 @@ public class FightManager : MonoBehaviour
     //Start/End
     public void StartFight(Enemy enemy)
     {
-        this.enemy =  enemy;
+        this.enemy = enemy;
 
-        enemyFightObject = Instantiate(enemy.enemyFight, spawnPoint.position, Quaternion.identity,playArea.transform);
+        enemyFightObject = Instantiate(enemy.enemyFight, spawnPoint.position, Quaternion.identity, playArea.transform);
 
         enemyAnimator = enemyFightObject.GetComponent<Animator>();
 
@@ -185,10 +203,10 @@ public class FightManager : MonoBehaviour
         //Changes from the current camera to main camera
         GameManager.Instance.ChangeView(Cameras.Base);
     }
-    
+
     //Player
     void PlayerTurn()
-    {       
+    {
         //Check
         if (state != BattleState.PLAYERTURN)
         {
@@ -198,6 +216,8 @@ public class FightManager : MonoBehaviour
         //UI
         battleAreaObject.SetActive(false);
         attackUI.peitto.SetActive(true);
+
+        canMove = false;
     }
     void PlayerAttack()
     {
@@ -218,10 +238,10 @@ public class FightManager : MonoBehaviour
             state = BattleState.WON;
             EndFight();
         }
-        
+
         state = BattleState.ENEMYTURN;
         EnemyTurn();
-    } 
+    }
     //Enemy
     void EnemyTurn()
     {
@@ -235,11 +255,15 @@ public class FightManager : MonoBehaviour
         attackUI.peitto.SetActive(false);
 
         //Action
-        EnemyAttack();
+        StartEnemyAttack();
     }
 
-    void EnemyAttack()
+    void StartEnemyAttack()
     {
+        if(state != BattleState.ENEMYTURN) { return; }
+
+        canMove = true;
+
         switch (enemy.attackOrder[turnNumber])
         {
             case 0:
@@ -262,13 +286,17 @@ public class FightManager : MonoBehaviour
 
         enemyAnimator.SetBool("StartAttack", true);
 
+
+    }
+
+    void EndEnemyAttack()
+    {
         turnNumber++;
-        if(turnNumber >= enemy.attackOrder.Length)
+        if (turnNumber >= enemy.attackOrder.Length)
         {
             turnNumber = 0;
         }
         state = BattleState.PLAYERTURN;
-        Debug.Log(turnNumber);
         PlayerTurn();
     }
 
@@ -332,6 +360,7 @@ public class FightManager : MonoBehaviour
     public void AnimationEnded(bool hasAnimationEnded)
     {
         enemyAnimator.SetBool("StartAttack", false);
+        EndEnemyAttack();
     }
 
     #region Callbacks
@@ -354,7 +383,7 @@ public class FightManager : MonoBehaviour
 
     public void OnPlayerHealthChanged()
     {
-        attackUI.playerHealthbar.SetValueWithoutNotify(playerHealth/playerMaxHealth);
+        attackUI.playerHealthbar.SetValueWithoutNotify(playerHealth / playerMaxHealth);
     }
     public void OnEnemyHealthChanged()
     {

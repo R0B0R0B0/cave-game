@@ -16,3 +16,6 @@ MonoBehaviour:
   health: 10
   damage: 10
   defense: 5
+  enemyFight: {fileID: 5591246142796071544, guid: bb1452cd925d983449122bc707b47ce8, type: 3}
+  attackOrder: 0100000002000000010000000200000003000000020000000100000003000000
+  playAreaSize: {x: 4, y: 4}

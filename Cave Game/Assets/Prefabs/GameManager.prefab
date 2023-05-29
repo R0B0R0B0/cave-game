@@ -67,14 +67,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackUIPrefab: {fileID: 1152916122186707161, guid: 564cd3151d59c484fbde83204feccd17, type: 3}
   playArea: {fileID: 0}
+  battleAreaObject: {fileID: 0}
   battleArea: {fileID: 0}
   canvas: {fileID: 1796605261112260814}
-  pee: {fileID: 2753358895698011988, guid: 4e763fc73fa39104b9475f4a8f06b496, type: 3}
+  borderGfx: {fileID: 0}
   spawnPoint: {fileID: 0}
   playerSpawnPoint: {fileID: 0}
   playerTransform: {fileID: 0}
   playerRigidbody: {fileID: 0}
   speed: 1
+  moveSpeed: 7
+  forceDamping: 1.2
 --- !u!1 &6749904888848605576
 GameObject:
   m_ObjectHideFlags: 0
