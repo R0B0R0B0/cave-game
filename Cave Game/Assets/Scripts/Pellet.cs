@@ -6,9 +6,11 @@ using UnityEngine;
 public class Pellet : MonoBehaviour
 {
     public float lifeTime = 2f;
+    bool useLifeTime;
 
     private IEnumerator Start()
     {
+        if (!useLifeTime) { StopAllCoroutines(); }
         yield return new WaitForSeconds(lifeTime);
         Destroy(gameObject);
     }

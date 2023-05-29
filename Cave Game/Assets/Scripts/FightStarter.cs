@@ -12,6 +12,7 @@ public class FightStarter : MonoBehaviour
         {
             Debug.Log("Fight start");
             GameManager.Instance.FightManager.StartFight(enemy);
+            gameObject.SetActive(false);
         }
     }
 }

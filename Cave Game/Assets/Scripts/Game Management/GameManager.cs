@@ -39,6 +39,9 @@ public class GameManager : MonoBehaviour
     [Header("Level Management")]
     public Transform startPosition;
     [Header("Prefabs")]
+    public GameObject playerPrefab;
+
+
     public GameObject player;
 
     public bool hasPlayer;
@@ -55,11 +58,11 @@ public class GameManager : MonoBehaviour
         startPosition = GameObject.FindGameObjectWithTag("Respawn").transform;
         if (startPosition != null)
         {
-            Instantiate(player, startPosition);
+            player = Instantiate(player, startPosition);
         }
         else
         {
-            Instantiate(player,Vector3.zero,Quaternion.identity);
+            player = Instantiate(player,Vector3.zero,Quaternion.identity);
         }
 
     }

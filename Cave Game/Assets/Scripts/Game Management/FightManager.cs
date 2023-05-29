@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -25,15 +26,14 @@ public class FightManager : MonoBehaviour
 
 
     */
-
     public GameObject attackUIPrefab;
-    public GameObject fightArea;
     AttackUI attackUI;
     public GameObject playArea;
+    public GameObject battleAreaObject;
     public BattleArea battleArea;
     public Transform canvas;
 
-    public Enemy defaultEnemy;
+
     public GameObject pee;
     public Transform spawnPoint;
 
@@ -51,6 +51,9 @@ public class FightManager : MonoBehaviour
     //In the battle
     public Transform playerTransform;
     public Rigidbody2D playerRigidbody;
+    int turnNumber;
+    Animator enemyAnimator;
+    GameObject enemyFightObject;
 
     public float speed = 1;
 
@@ -60,16 +63,32 @@ public class FightManager : MonoBehaviour
     float playerDamage = 1;
 
     //Enemy stuff
+    Enemy enemy;
+
     float enemyHealth = 10;
     float enemyMaxHealth = 10;
     float enemyDamage = 1;
+    float enemyDefence = 0;
+
+
+    //Other
+    bool hasAnimationEnded;
 
     void Start()
     {
         //Setup the attackUI game object
         if (attackUIGameObject == null)
         {
-            attackUIGameObject = Instantiate(attackUIPrefab,transform.GetChild(0));
+            if (GameObject.FindWithTag("FightUI"))
+            {
+                Debug.Log("Found fight ui");
+                attackUIGameObject = GameObject.FindGameObjectWithTag("FightUI");
+            }
+            else
+            {
+                Debug.Log("Creating fight ui");
+                attackUIGameObject = Instantiate(attackUIPrefab, canvas);
+            }       
         }
         attackUI = attackUIGameObject.GetComponent<AttackUI>();
 
@@ -96,9 +115,32 @@ public class FightManager : MonoBehaviour
 
     #region Setup Functions
 
+    //setup
+    void SetupBattle()
+    {
+        //for testing purposes
+        Vector2 size = enemy.playAreaSize;
+        attackUI.mainPanel.SetActive(true);
+
+        //Edits the colliders
+        SetPlayArea(battleArea.colliders, size);
+
+        //Changes from the current camera to fight camera
+        GameManager.Instance.ChangeView(Cameras.Battle);
+
+        //Disables player
+        GameManager.Instance.player.SetActive(false);
+
+        //Setup variables
+        enemyMaxHealth = enemy.health;
+        enemyHealth = enemyMaxHealth;
+        enemyDamage = enemy.damage;
+
+    }
+
     void SetPlayArea(BoxCollider2D[] colliders, Vector2 size)
     {
-        float thickness = 1;
+        float thickness = .1f;
 
         //Up
         colliders[0].size = new Vector2(size.x, thickness);
@@ -107,11 +149,11 @@ public class FightManager : MonoBehaviour
         colliders[1].size = new Vector2(size.x, thickness);
         colliders[1].offset = new Vector2(0, -size.y / 2 - thickness / 2);
         //Right
-        colliders[0].size = new Vector2(thickness, size.y);
-        colliders[0].offset = new Vector2(size.x / 2 + thickness / 2, 0);
+        colliders[2].size = new Vector2(thickness, size.y);
+        colliders[2].offset = new Vector2(size.x / 2 + thickness / 2, 0);
         //Left
-        colliders[0].size = new Vector2(thickness, size.y);
-        colliders[0].offset = new Vector2(0, -size.x / 2 - thickness / 2);
+        colliders[3].size = new Vector2(thickness, size.y);
+        colliders[3].offset = new Vector2(-size.x / 2 - thickness / 2, 0);
 
     }
 
@@ -121,6 +163,12 @@ public class FightManager : MonoBehaviour
     //Start/End
     public void StartFight(Enemy enemy)
     {
+        this.enemy =  enemy;
+
+        enemyFightObject = Instantiate(enemy.enemyFight, spawnPoint.position, Quaternion.identity,playArea.transform);
+
+        enemyAnimator = enemyFightObject.GetComponent<Animator>();
+
         state = BattleState.START;
 
         SetupBattle();
@@ -130,17 +178,14 @@ public class FightManager : MonoBehaviour
     public void EndFight()
     {
         attackUI.mainPanel.SetActive(false);
-    }
-    //setup
-    void SetupBattle()
-    {
-        Vector2 size = Vector2.one;
-        attackUI.mainPanel.SetActive(true);
 
-        SetPlayArea(battleArea.colliders, size);
+        //Activates player
+        GameManager.Instance.player.SetActive(true);
 
-        GameManager.Instance.ChangeView(Cameras.Battle);
+        //Changes from the current camera to main camera
+        GameManager.Instance.ChangeView(Cameras.Base);
     }
+    
     //Player
     void PlayerTurn()
     {       
@@ -151,8 +196,8 @@ public class FightManager : MonoBehaviour
         }
 
         //UI
+        battleAreaObject.SetActive(false);
         attackUI.peitto.SetActive(true);
-        playArea.SetActive(false);
     }
     void PlayerAttack()
     {
@@ -165,7 +210,7 @@ public class FightManager : MonoBehaviour
         //UI
 
         //Logic
-        enemyHealth -= playerDamage;
+        enemyHealth -= playerDamage;// * (enemyDefence * 0.2f); Debug.Log("Damage " + playerDamage * (enemyDefence * 0.2f));
         OnEnemyHealthChanged();
 
         if (enemyHealth <= 0)
@@ -186,11 +231,48 @@ public class FightManager : MonoBehaviour
             return;
         }
         //UI 
-
+        battleAreaObject.SetActive(true);
+        attackUI.peitto.SetActive(false);
 
         //Action
-        StartCoroutine(EnemyAttack());
+        EnemyAttack();
     }
+
+    void EnemyAttack()
+    {
+        switch (enemy.attackOrder[turnNumber])
+        {
+            case 0:
+                enemyAnimator.SetInteger("BattleIndex", 0);
+                break;
+            case 1:
+                Debug.Log("1 fweuigfiwudwjfif");
+                enemyAnimator.SetInteger("BattleIndex", 1);
+                break;
+            case 2:
+                enemyAnimator.SetInteger("BattleIndex", 2);
+                break;
+            case 3:
+                enemyAnimator.SetInteger("BattleIndex", 3);
+                break;
+            default:
+                enemyAnimator.SetInteger("BattleIndex", 0);
+                break;
+        }
+
+        enemyAnimator.SetBool("StartAttack", true);
+
+        turnNumber++;
+        if(turnNumber >= enemy.attackOrder.Length)
+        {
+            turnNumber = 0;
+        }
+        state = BattleState.PLAYERTURN;
+        Debug.Log(turnNumber);
+        PlayerTurn();
+    }
+
+    /*
     IEnumerator EnemyAttack()
     {
         //Check
@@ -231,9 +313,10 @@ public class FightManager : MonoBehaviour
         yield return null;
 
     }
+    */
     #endregion
 
-    //Hit callbacks
+    //Callbacks
     public void PelletHit()
     {
         playerHealth -= enemyDamage;
@@ -244,6 +327,11 @@ public class FightManager : MonoBehaviour
             state = BattleState.LOST;
             EndFight();
         }
+    }
+
+    public void AnimationEnded(bool hasAnimationEnded)
+    {
+        enemyAnimator.SetBool("StartAttack", false);
     }
 
     #region Callbacks
@@ -258,11 +346,6 @@ public class FightManager : MonoBehaviour
         }
 
         PlayerAttack();
-    }
-
-    public void OnButtonPressed()
-    {
-        StartFight(defaultEnemy);
     }
     #endregion
 

@@ -155,7 +155,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9f8c47cf09d94940be0bae79e705329, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weapon: {fileID: 0}
   rb: {fileID: 3093900444289342605}
   moveSpeed: 7
   forceToApply: {x: 0, y: 0}
