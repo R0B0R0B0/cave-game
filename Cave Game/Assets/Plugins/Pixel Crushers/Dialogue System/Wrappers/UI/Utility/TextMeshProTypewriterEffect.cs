@@ -1,5 +1,4 @@
-// Recompile at 4.3.2023 14.06.57
-// Copyright (c) Pixel Crushers. All rights reserved.
+﻿// Copyright (c) Pixel Crushers. All rights reserved.
 
 using UnityEngine;
 

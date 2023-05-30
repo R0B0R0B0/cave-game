@@ -611,7 +611,7 @@ namespace PixelCrushers.DialogueSystem
             }
             var previousChars = accumulateText ? UITools.StripRPGMakerCodes(Tools.StripTextMeshProTags(Tools.StripRichTextCodes(previousText))).Length : 0;
             SetFormattedText(subtitleText, previousText, subtitle.formattedText);
-            if (accumulateText) m_accumulatedText = subtitleText.text + "\n";
+            if (accumulateText) m_accumulatedText = UITools.StripRPGMakerCodes(subtitleText.text) + "\n";
             if (scrollbarEnabler != null && !HasTypewriter())
             {
                 scrollbarEnabler.CheckScrollbarWithResetValue(0);
@@ -686,13 +686,13 @@ namespace PixelCrushers.DialogueSystem
                         (speakerPanelNumber == SubtitlePanelNumber.Custom && dialogueActor.standardDialogueUISettings.customSubtitlePanel == this);
                     if (isMyPanel)
                     {
-                        if (m_setAnimatorCoroutine != null) StopCoroutine(m_setAnimatorCoroutine);
+                        if (m_setAnimatorCoroutine != null) DialogueManager.instance.StopCoroutine(m_setAnimatorCoroutine);
                         m_setAnimatorCoroutine = DialogueManager.instance.StartCoroutine(SetAnimatorAtEndOfFrame(dialogueActor.standardDialogueUISettings.portraitAnimatorController));
                     }
                 }
                 else
                 {
-                    if (m_setAnimatorCoroutine != null) StopCoroutine(m_setAnimatorCoroutine);
+                    if (m_setAnimatorCoroutine != null) DialogueManager.instance.StopCoroutine(m_setAnimatorCoroutine);
                     m_setAnimatorCoroutine = DialogueManager.instance.StartCoroutine(SetAnimatorAtEndOfFrame(null));
                 }
             }
@@ -703,7 +703,7 @@ namespace PixelCrushers.DialogueSystem
             if (dialogueActor != null && useAnimatedPortraits && animator != null &&
                 dialogueActor.standardDialogueUISettings.portraitAnimatorController != null)
             {
-                if (m_setAnimatorCoroutine != null) StopCoroutine(m_setAnimatorCoroutine);
+                if (m_setAnimatorCoroutine != null) DialogueManager.instance.StopCoroutine(m_setAnimatorCoroutine);
                 m_setAnimatorCoroutine = DialogueManager.instance.StartCoroutine(SetAnimatorAtEndOfFrame(dialogueActor.standardDialogueUISettings.portraitAnimatorController));
             }
         }

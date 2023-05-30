@@ -227,7 +227,10 @@ namespace PixelCrushers
             panelState = PanelState.Opening;
             gameObject.SetActive(true);
             onOpen.Invoke();
-            if (myAnimator != null && myAnimator.isInitialized) myAnimator.ResetTrigger(hideAnimationTrigger);
+            if (myAnimator != null && myAnimator.isInitialized && !string.IsNullOrEmpty(hideAnimationTrigger))
+            {
+                myAnimator.ResetTrigger(hideAnimationTrigger);
+            }
             animatorMonitor.SetTrigger(showAnimationTrigger, OnVisible, waitForShowAnimation);
 
             // With quick panel changes, panel may not reach OnEnable/OnDisable before being reused.
@@ -243,7 +246,10 @@ namespace PixelCrushers
             if (panelState == PanelState.Closed || panelState == PanelState.Closing) return;
             panelState = PanelState.Closing;
             onClose.Invoke();
-            if (myAnimator != null && myAnimator.isInitialized) myAnimator.ResetTrigger(showAnimationTrigger);
+            if (myAnimator != null && myAnimator.isInitialized && !string.IsNullOrEmpty(showAnimationTrigger))
+            {
+                myAnimator.ResetTrigger(showAnimationTrigger);
+            }
             animatorMonitor.SetTrigger(hideAnimationTrigger, OnHidden, true);
 
             // Deselect ours:
@@ -338,7 +344,15 @@ namespace PixelCrushers
             {
                 if (UnityEngine.EventSystems.EventSystem.current != null)
                 {
-                    UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(selectable);
+                    var selectableComponent = (selectable != null) ? selectable.GetComponent<UnityEngine.UI.Selectable>() : null;
+                    if (selectableComponent != null)
+                    {
+                        UIUtility.Select(selectableComponent);
+                    }
+                    else
+                    {
+                        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(selectable);
+                    }
                 }
             }
         }

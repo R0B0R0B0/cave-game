@@ -24,7 +24,7 @@ namespace PixelCrushers.DialogueSystem
         /// The variable to increment.
         /// </summary>
         [Tooltip("Increment this Dialogue System variable.")]
-        [VariablePopup]
+        [VariablePopup(true)]
         public string variable = string.Empty;
 
         /// <summary>

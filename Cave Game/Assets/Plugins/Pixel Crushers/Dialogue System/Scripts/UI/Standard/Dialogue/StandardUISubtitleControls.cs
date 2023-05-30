@@ -91,6 +91,12 @@ namespace PixelCrushers.DialogueSystem
             m_useBarkUIs.Clear();
         }
 
+        public void ClearOverrideCache()
+        {
+            m_actorPanelCache.Clear();
+            m_customPanels.Clear();
+        }
+
         public void ForceOverrideSubtitlePanel(StandardUISubtitlePanel customPanel)
         {
             m_forcedOverridePanel = customPanel;
@@ -478,7 +484,8 @@ namespace PixelCrushers.DialogueSystem
             {
                 if (kvp.Value != null) kvp.Value.Close();
             }
-            //--- No longer clear cache when closing subtitles because SetDialoguePanel may close them: ClearCache();
+            //--- No longer clear all caches when closing subtitles because SetDialoguePanel may close them: ClearCache();
+            ClearOverrideCache();
         }
 
         public bool AreAnyPanelsClosing()

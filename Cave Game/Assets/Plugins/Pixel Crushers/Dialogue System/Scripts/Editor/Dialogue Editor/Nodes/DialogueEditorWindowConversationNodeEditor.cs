@@ -173,7 +173,8 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
             }
         }
 
-        private const float EntryGroupHeadingHeight = 20;
+        private const float EntryGroupHeadingBaseHeight = 20;
+        private float entryGroupHeadingHeight = 20;
         private List<DialogueEntry> nodesInEntryGroup = null;
         private List<EntryGroup> subgroupsInEntryGroup = null;
         private bool isRenamingEntryGroup = false;
@@ -198,6 +199,15 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
             if (!(Application.isPlaying && DialogueManager.hasInstance)) currentRuntimeEntry = null;
 
             CheckDialogueTreeGUIStyles();
+            if (_zoom != currentEntryGroupHeadingZoom && entryGroupHeadingStyle != null)
+            {
+                currentEntryGroupHeadingZoom = _zoom;
+                entryGroupHeadingStyle.fontSize = Mathf.RoundToInt((_zoom >= 1) ? entryGroupHeadingBaseFontSize
+                    : (entryGroupHeadingBaseFontSize / _zoom));
+                entryGroupHeadingHeight = Mathf.RoundToInt((_zoom >= 1) ? EntryGroupHeadingBaseHeight
+                    : (EntryGroupHeadingBaseHeight / _zoom));
+            }
+
             if (nodeEditorDeleteCurrentConversation) DeleteCurrentConversationInNodeEditor();
             //--- Unnecessary: if (inspectorSelection == null) inspectorSelection = currentConversation;
 
@@ -344,7 +354,8 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
                 if (!isRenamingEntryGroup)
                 {
                     GUI.color = new Color(group.color.r, group.color.g, group.color.b, 1);
-                    GUI.Box(new Rect(group.rect.x, group.rect.y, group.rect.width, EntryGroupHeadingHeight), group.name, GUI.skin.button);
+                    if (entryGroupHeadingStyle == null) InitEntryGroupHeadingStyle();
+                    GUI.Box(new Rect(group.rect.x, group.rect.y, group.rect.width, entryGroupHeadingHeight), group.name, entryGroupHeadingStyle);
                 }
                 GUI.color = originalColor;
                 var resizeRect = new Rect(group.rect.x + group.rect.width - 20, group.rect.y + group.rect.height - 20, 16, 16);
@@ -357,7 +368,7 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
         {
             if (selectedEntryGroup == null) return;
             var group = selectedEntryGroup;
-            selectedEntryGroup.name = EditorGUI.TextField(new Rect(group.rect.x, group.rect.y, group.rect.width, EntryGroupHeadingHeight), GUIContent.none, group.name);
+            selectedEntryGroup.name = EditorGUI.TextField(new Rect(group.rect.x, group.rect.y, group.rect.width, entryGroupHeadingHeight), GUIContent.none, group.name);
         }
 
         public void DrawEntryGroupContents()
@@ -1522,7 +1533,7 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
             for (int i = 0; i < currentConversation.entryGroups.Count; i++)
             {
                 var group = currentConversation.entryGroups[i];
-                var groupHeadingRect = new Rect(group.rect.x, group.rect.y, group.rect.width, EntryGroupHeadingHeight);
+                var groupHeadingRect = new Rect(group.rect.x, group.rect.y, group.rect.width, entryGroupHeadingHeight);
                 var resizeRect = new Rect(group.rect.x + group.rect.width - 20, group.rect.y + group.rect.height - 20, 20, 20);
                 if (groupHeadingRect.Contains(clickPos) || resizeRect.Contains(clickPos))
                 {
@@ -1562,7 +1573,7 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
             if (currentConversation == null || selectedEntryGroup == null) return false;
             var clickPos = Event.current.mousePosition + canvasScrollPosition;
             var group = selectedEntryGroup;
-            var groupHeadingRect = new Rect(group.rect.x, group.rect.y, group.rect.width, EntryGroupHeadingHeight);
+            var groupHeadingRect = new Rect(group.rect.x, group.rect.y, group.rect.width, entryGroupHeadingHeight);
             return groupHeadingRect.Contains(clickPos);
         }
 

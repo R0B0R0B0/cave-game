@@ -6,6 +6,8 @@ using UnityEngine;
 namespace PixelCrushers.DialogueSystem
 {
 
+    public enum BarkGroupQueueLimitMode { NoLimit, StopAtLimit, DropOldestAtLimit }
+
     /// <summary>
     /// Manages bark groups specified by BarkGroupMember.
     /// Adds itself to the Dialogue Manager.
@@ -13,6 +15,11 @@ namespace PixelCrushers.DialogueSystem
     [AddComponentMenu("")] // Added automatically at runtime.
     public class BarkGroupManager : MonoBehaviour
     {
+
+        public BarkGroupQueueLimitMode queueLimitMode = BarkGroupQueueLimitMode.NoLimit;
+
+        [Tooltip("Only used if mode is Stop At Limit or Drop Oldest At Limit")]
+        public int queueLimit = 256;
 
         private static bool s_applicationIsQuitting = false;
         private static BarkGroupManager s_instance = null;
@@ -38,6 +45,7 @@ namespace PixelCrushers.DialogueSystem
         static void InitStaticVariables()
         {
             s_applicationIsQuitting = false;
+            s_instance = null;
         }
 #endif
 
@@ -203,6 +211,17 @@ namespace PixelCrushers.DialogueSystem
             var groupId = member.currentIdValue;
             if (!queues.ContainsKey(groupId)) queues.Add(groupId, new Queue<BarkRequest>());
             var queue = queues[groupId];
+            if (queueLimitMode != BarkGroupQueueLimitMode.NoLimit && queue.Count > queueLimit)
+            {
+                switch (queueLimitMode)
+                {
+                    case BarkGroupQueueLimitMode.StopAtLimit:
+                        return;
+                    case BarkGroupQueueLimitMode.DropOldestAtLimit:
+                        queue.Dequeue();
+                        break;
+                }
+            }
             queue.Enqueue(barkRequest);
             if (queue.Count == 1) barkRequest.delayTime = 0; // Play immediately.
         }

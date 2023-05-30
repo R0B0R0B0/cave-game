@@ -375,10 +375,11 @@ namespace PixelCrushers.DialogueSystem.Twine
                 string replacement = string.Empty;
                 if (!(isLink || string.IsNullOrEmpty(hookText)))
                 {
-                    var condition = ConvertIfMacro(prefix).Replace("\"", "\\\"");
+                    // Note: Conditiona() changed -- now expects a bool for first parameter.
+                    var condition = ConvertIfMacro(prefix);
                     var cleanHookText = hookText.Replace("\"", "\\\"");
                     if (hasNewline) cleanHookText += "\\n";
-                    replacement = "[lua(Conditional(\"" + condition + "\", \"" + cleanHookText + "\"))]";
+                    replacement = "[lua(Conditional(" + condition + ", \"" + cleanHookText + "\"))]";
                 }
 
                 text = Replace(text, match.Index, match.Length + (hasNewline ? 1 : 0), replacement);

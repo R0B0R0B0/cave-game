@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/EndMenu.uss?fileID=7433441132597879392&amp;guid=fa084c920958ab14f9d84e14f3df36dc&amp;type=3#EndMenu" />
+    <ui:VisualElement style="flex-grow: 1; justify-content: center;">
+        <ui:VisualElement class="main_text" style="flex-grow: 1; align-items: center; justify-content: center;">
+            <ui:Label text="The End" display-tooltip-when-elided="true" class="text" />
+        </ui:VisualElement>
+        <ui:VisualElement style="flex-grow: 1; justify-content: center; align-items: center;">
+            <ui:VisualElement style="flex-grow: 1; align-items: center; justify-content: center;">
+                <ui:Label text="Thank you for Playing!&#10;This was made in a week&#10;English Because of ÄÖ äö" display-tooltip-when-elided="true" class="plain_text" />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-grow: 1; justify-content: center; align-items: center;">
+                <ui:Button text="Back to main menu" display-tooltip-when-elided="true" name="backButton" class="button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -168,7 +168,8 @@ namespace PixelCrushers.DialogueSystem
         /// </example>
         public static bool IsTrue(string luaCondition, bool debug, bool allowExceptions)
         {
-            return Tools.IsStringNullOrEmptyOrWhitespace(luaCondition) ? true : Run("return " + luaCondition, debug, allowExceptions).asBool;
+            return (Tools.IsStringNullOrEmptyOrWhitespace(luaCondition) || IsOnlyComment(luaCondition)) ? true 
+                : Run("return " + luaCondition, debug, allowExceptions).asBool;
         }
 
         /// <summary>
@@ -190,6 +191,27 @@ namespace PixelCrushers.DialogueSystem
         public static bool IsTrue(string luaCondition)
         {
             return IsTrue(luaCondition, false, false);
+        }
+
+        public static bool IsOnlyComment(string luaCode)
+        {
+            if (luaCode.StartsWith("--"))
+            {
+                if (!luaCode.Contains("\n"))
+                {
+                    return true;
+                }
+                else
+                {
+                    var lines = luaCode.Split('\n');
+                    foreach (var line in lines)
+                    {
+                        if (!line.StartsWith("--")) return false;
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>

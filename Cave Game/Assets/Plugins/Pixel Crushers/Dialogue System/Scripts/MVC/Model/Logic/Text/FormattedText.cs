@@ -1,4 +1,3 @@
-// Recompile at 4.3.2023 14.06.57
 // Copyright (c) Pixel Crushers. All rights reserved.
 
 using System.Collections.Generic;

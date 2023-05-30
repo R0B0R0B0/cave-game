@@ -12,24 +12,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 935899b62f48ae5498594680ed17d133, type: 3}
   m_Name: GameDatabase
   m_EditorClassIdentifier: 
-  version: 
-  author: 
-  description: 
+  version: 1.0
+  author: R0B0
+  description: Database for cave game
   globalUserScript: 
   emphasisSettings:
-  - color: {r: 1, g: 1, b: 1, a: 1}
+  - color:
+      r: 1
+      g: 1
+      b: 1
+      a: 1
     bold: 0
     italic: 0
     underline: 0
-  - color: {r: 1, g: 0, b: 0, a: 1}
+  - color:
+      r: 1
+      g: 0
+      b: 0
+      a: 1
     bold: 0
     italic: 0
     underline: 0
-  - color: {r: 0, g: 1, b: 0, a: 1}
+  - color:
+      r: 0
+      g: 1
+      b: 0
+      a: 1
     bold: 0
     italic: 0
     underline: 0
-  - color: {r: 0, g: 0, b: 1, a: 1}
+  - color:
+      r: 0
+      g: 0
+      b: 1
+      a: 1
     bold: 0
     italic: 0
     underline: 0
@@ -69,6 +85,28 @@ MonoBehaviour:
       typeString: CustomFieldType_Files
     - title: Description
       value: Turtle / Tutorial
+      type: 0
+      typeString: 
+    - title: IsPlayer
+      value: False
+      type: 2
+      typeString: CustomFieldType_Boolean
+    portrait: {fileID: 0}
+    spritePortrait: {fileID: 0}
+    alternatePortraits: []
+    spritePortraits: []
+  - id: 3
+    fields:
+    - title: Name
+      value: Sign
+      type: 0
+      typeString: 
+    - title: Pictures
+      value: '[]'
+      type: 3
+      typeString: CustomFieldType_Files
+    - title: Description
+      value: Sign
       type: 0
       typeString: 
     - title: IsPlayer
@@ -212,8 +250,8 @@ MonoBehaviour:
       onExecute:
         m_PersistentCalls:
           m_Calls: []
+        m_CallsDirty: 1
       canvasRect:
-        serializedVersion: 2
         x: 274
         y: 11
         width: 160
@@ -267,8 +305,8 @@ MonoBehaviour:
       onExecute:
         m_PersistentCalls:
           m_Calls: []
+        m_CallsDirty: 1
       canvasRect:
-        serializedVersion: 2
         x: 156
         y: 92
         width: 160
@@ -322,8 +360,8 @@ MonoBehaviour:
       onExecute:
         m_PersistentCalls:
           m_Calls: []
+        m_CallsDirty: 1
       canvasRect:
-        serializedVersion: 2
         x: 151
         y: 144
         width: 160
@@ -387,8 +425,8 @@ MonoBehaviour:
       onExecute:
         m_PersistentCalls:
           m_Calls: []
+        m_CallsDirty: 1
       canvasRect:
-        serializedVersion: 2
         x: 156
         y: 191
         width: 160
@@ -436,8 +474,8 @@ MonoBehaviour:
       onExecute:
         m_PersistentCalls:
           m_Calls: []
+        m_CallsDirty: 1
       canvasRect:
-        serializedVersion: 2
         x: 255
         y: 261
         width: 160
@@ -491,8 +529,8 @@ MonoBehaviour:
       onExecute:
         m_PersistentCalls:
           m_Calls: []
+        m_CallsDirty: 1
       canvasRect:
-        serializedVersion: 2
         x: 56
         y: 264
         width: 160
@@ -540,8 +578,8 @@ MonoBehaviour:
       onExecute:
         m_PersistentCalls:
           m_Calls: []
+        m_CallsDirty: 1
       canvasRect:
-        serializedVersion: 2
         x: 56
         y: 314
         width: 160
@@ -589,15 +627,278 @@ MonoBehaviour:
       onExecute:
         m_PersistentCalls:
           m_Calls: []
+        m_CallsDirty: 1
       canvasRect:
-        serializedVersion: 2
-        x: 274
-        y: 61
+        x: 397
+        y: 57
         width: 160
         height: 30
     entryGroups: []
     canvasScrollPosition: {x: 0, y: 0}
     canvasZoom: 1
+  - id: 2
+    fields:
+    - title: Title
+      value: Tutorial/FirstSign
+      type: 0
+      typeString: 
+    - title: Description
+      value: 
+      type: 0
+      typeString: 
+    - title: Actor
+      value: 1
+      type: 5
+      typeString: CustomFieldType_Actor
+    - title: Conversant
+      value: 3
+      type: 5
+      typeString: CustomFieldType_Actor
+    overrideSettings:
+      useOverrides: 0
+      overrideSubtitleSettings: 0
+      showNPCSubtitlesDuringLine: 1
+      showNPCSubtitlesWithResponses: 1
+      showPCSubtitlesDuringLine: 0
+      skipPCSubtitleAfterResponseMenu: 0
+      subtitleCharsPerSecond: 30
+      minSubtitleSeconds: 2
+      continueButton: 0
+      overrideSequenceSettings: 0
+      defaultSequence: 
+      defaultPlayerSequence: 
+      defaultResponseMenuSequence: 
+      overrideInputSettings: 0
+      alwaysForceResponseMenu: 1
+      includeInvalidEntries: 0
+      responseTimeout: 0
+      emTagForOldResponses: 0
+      emTagForInvalidResponses: 0
+      cancelSubtitle:
+        key: 27
+        buttonName: 
+      cancelConversation:
+        key: 27
+        buttonName: 
+    nodeColor: 
+    dialogueEntries:
+    - id: 0
+      fields:
+      - title: Title
+        value: START
+        type: 0
+        typeString: 
+      - title: Description
+        value: 
+        type: 0
+        typeString: 
+      - title: Actor
+        value: 1
+        type: 5
+        typeString: CustomFieldType_Actor
+      - title: Conversant
+        value: 3
+        type: 5
+        typeString: CustomFieldType_Actor
+      - title: Menu Text
+        value: 
+        type: 0
+        typeString: 
+      - title: Dialogue Text
+        value: 
+        type: 0
+        typeString: 
+      - title: Sequence
+        value: None()
+        type: 0
+        typeString: 
+      conversationID: 2
+      isRoot: 0
+      isGroup: 0
+      nodeColor: 
+      delaySimStatus: 0
+      falseConditionAction: Block
+      conditionPriority: 2
+      outgoingLinks:
+      - originConversationID: 2
+        originDialogueID: 0
+        destinationConversationID: 2
+        destinationDialogueID: 1
+        isConnector: 0
+        priority: 2
+      conditionsString: 
+      userScript: 
+      onExecute:
+        m_PersistentCalls:
+          m_Calls: []
+        m_CallsDirty: 1
+      canvasRect:
+        x: 281
+        y: 24
+        width: 160
+        height: 30
+    - id: 1
+      fields:
+      - title: Title
+        value: 
+        type: 0
+        typeString: 
+      - title: Description
+        value: 
+        type: 0
+        typeString: 
+      - title: Actor
+        value: 3
+        type: 5
+        typeString: CustomFieldType_Actor
+      - title: Conversant
+        value: 1
+        type: 5
+        typeString: CustomFieldType_Actor
+      - title: Menu Text
+        value: 
+        type: 0
+        typeString: 
+      - title: Dialogue Text
+        value: Use WASD to move
+        type: 0
+        typeString: 
+      - title: Sequence
+        value: 
+        type: 0
+        typeString: 
+      conversationID: 2
+      isRoot: 0
+      isGroup: 0
+      nodeColor: 
+      delaySimStatus: 0
+      falseConditionAction: Block
+      conditionPriority: 2
+      outgoingLinks:
+      - originConversationID: 2
+        originDialogueID: 1
+        destinationConversationID: 2
+        destinationDialogueID: 2
+        isConnector: 0
+        priority: 2
+      conditionsString: 
+      userScript: 
+      onExecute:
+        m_PersistentCalls:
+          m_Calls: []
+        m_CallsDirty: 1
+      canvasRect:
+        x: 176
+        y: 82
+        width: 160
+        height: 30
+    - id: 2
+      fields:
+      - title: Title
+        value: 
+        type: 0
+        typeString: 
+      - title: Description
+        value: 
+        type: 0
+        typeString: 
+      - title: Actor
+        value: 3
+        type: 5
+        typeString: CustomFieldType_Actor
+      - title: Conversant
+        value: 1
+        type: 5
+        typeString: CustomFieldType_Actor
+      - title: Menu Text
+        value: 
+        type: 0
+        typeString: 
+      - title: Dialogue Text
+        value: Click F to interact with levers
+        type: 0
+        typeString: 
+      - title: Sequence
+        value: 
+        type: 0
+        typeString: 
+      conversationID: 2
+      isRoot: 0
+      isGroup: 0
+      nodeColor: 
+      delaySimStatus: 0
+      falseConditionAction: Block
+      conditionPriority: 2
+      outgoingLinks:
+      - originConversationID: 2
+        originDialogueID: 2
+        destinationConversationID: 2
+        destinationDialogueID: 3
+        isConnector: 0
+        priority: 2
+      conditionsString: 
+      userScript: 
+      onExecute:
+        m_PersistentCalls:
+          m_Calls: []
+        m_CallsDirty: 1
+      canvasRect:
+        x: 176
+        y: 132
+        width: 160
+        height: 30
+    - id: 3
+      fields:
+      - title: Title
+        value: 
+        type: 0
+        typeString: 
+      - title: Description
+        value: 
+        type: 0
+        typeString: 
+      - title: Actor
+        value: 3
+        type: 5
+        typeString: CustomFieldType_Actor
+      - title: Conversant
+        value: 1
+        type: 5
+        typeString: CustomFieldType_Actor
+      - title: Menu Text
+        value: 
+        type: 0
+        typeString: 
+      - title: Dialogue Text
+        value: Hover mouse over signs and press space to read them
+        type: 0
+        typeString: 
+      - title: Sequence
+        value: 
+        type: 0
+        typeString: 
+      conversationID: 2
+      isRoot: 0
+      isGroup: 0
+      nodeColor: 
+      delaySimStatus: 0
+      falseConditionAction: Block
+      conditionPriority: 2
+      outgoingLinks: []
+      conditionsString: 
+      userScript: 
+      onExecute:
+        m_PersistentCalls:
+          m_Calls: []
+        m_CallsDirty: 1
+      canvasRect:
+        x: 176
+        y: 182
+        width: 160
+        height: 30
+    entryGroups: []
+    canvasScrollPosition: {x: 0, y: 0}
+    canvasZoom: 1.03
   syncInfo:
     syncActors: 0
     syncItems: 0

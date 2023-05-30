@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.Assertions.Must;
 
 namespace PixelCrushers.DialogueSystem.ArcweaveSupport
 {
@@ -67,6 +68,8 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
 
         public bool importPortraits = true;
         public bool importGuids = false;
+        public int numPlayers = 1;
+        public string globalVariables;
 
         public string prefsPath;
     }
@@ -94,6 +97,8 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
 
         public bool boardsFoldout = true;
         public bool componentsFoldout = true;
+        public int numPlayers = 1;
+        public List<string> globalVariables = new List<string>();
 
         public bool importPortraits = true;
         public bool importGuids = false;
@@ -140,6 +145,8 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
         /// <param name="importPortraits">Assign portrait images to actors. (Editor only)</param>
         /// <param name="importGuids">In actors, locations, conversations, and quests, add a field containing Arcweave GUID.</param>
         /// <param name="merge">Merge into existing database, keeping/overwriting existing assets, instead of clearing database first.</param>
+        /// <param name="numPlayers">Set to value greater than 1 to import set of variables for each player.</param>
+        /// <param name="globalVariables">If numPlayers > 1, this is a comma-separated list of global variables that aren't player-specific.</param>
         /// <param name="template">Template to use to create new actors, conversations, etc.</param>
         public void Setup(string arcweaveProjectPath,
             string contentJson,
@@ -153,6 +160,8 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
             bool componentsFoldout,
             bool importPortraits,
             bool importGuids,
+            int numPlayers,
+            string globalVariables,
             bool merge,
             Template template)
         {
@@ -168,8 +177,10 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
             this.componentsFoldout = componentsFoldout;
             this.importPortraits = importPortraits;
             this.importGuids = importGuids;
+            this.numPlayers = numPlayers;
+            this.globalVariables = ParseGlobalVariables(globalVariables);
             this.merge = merge;
-            this.template = template;
+            this.template = (template != null) ? template : Template.FromDefault();
         }
 
         /// <summary>
@@ -195,6 +206,8 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
                     prefs.componentsFoldout,
                     prefs.importPortraits,
                     prefs.importGuids,
+                    prefs.numPlayers,
+                    prefs.globalVariables,
                     prefs.merge,
                     template);
                 this.database = database;
@@ -204,6 +217,19 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
         public void Clear()
         {
             arcweaveProject = null;
+        }
+
+        protected List<string> ParseGlobalVariables(string s)
+        {
+            var list = new List<string>();
+            if (!string.IsNullOrEmpty(s))
+            {
+                foreach (var v in s.Split(','))
+                {
+                    list.Add(v.Trim());
+                }
+            }
+            return list;
         }
 
         #endregion
@@ -444,13 +470,31 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
 
         protected void AddVariables()
         {
+            AddVariables("");
+            if (numPlayers > 1)
+            {
+                for (var i = 0; i < numPlayers; i++)
+                {
+                    AddVariables("Player" + i + "_");
+                }
+            }
+        }
+
+        protected void AddVariables(string prefix)
+        {
             foreach (var kvp in arcweaveProject.variables)
             {
                 ArcweaveVariable arcweaveVariable = kvp.Value;
                 if (!string.IsNullOrEmpty(arcweaveVariable.name))
                 {
                     if (merge) database.variables.RemoveAll(x => x.Name == arcweaveVariable.name);
-                    var variable = template.CreateVariable(template.GetNextVariableID(database), arcweaveVariable.name, string.Empty);
+                    //---Was: var variable = template.CreateVariable(template.GetNextVariableID(database), arcweaveVariable.name, string.Empty);
+                    var isGlobalVariable = globalVariables.Contains(arcweaveVariable.name);
+                    if ((isGlobalVariable && !string.IsNullOrEmpty(prefix))) // Is global so don't need player-specific version.
+                    {
+                        continue;
+                    }
+                    var variable = template.CreateVariable(template.GetNextVariableID(database), prefix + arcweaveVariable.name, string.Empty);
                     database.variables.Add(variable);
                     switch (arcweaveVariable.type)
                     {
@@ -634,13 +678,16 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
                     {
                         var connection = LookupArcweave<Connection>(connectionGuid);
                         if (connection == null) continue;
-                        var isBlank = string.IsNullOrEmpty(connection.label);
+                        string code;
+                        var connectionLabel = ExtractCode(connection.label, out code);
+                        var isBlank = string.IsNullOrEmpty(connectionLabel);
                         var entry = GetOrCreateDialogueEntry(conversation, connectionGuid);
                         entry.ActorID = isBlank ? currentNpcID : currentPlayerID;
                         entry.ConversantID = currentPlayerID;
                         entry.isGroup = isBlank;
-                        entry.DialogueText = connection.label;
-                        if (isBlank) entry.Title = DeleteTag;
+                        entry.DialogueText = TouchUpRichText(connectionLabel);
+                        //--- Added later: entry.userScript = string.IsNullOrEmpty(code) ? string.Empty : ConvertArcscriptToLua(code);
+                        if (isBlank && string.IsNullOrEmpty(code)) entry.Title = DeleteTag;
                     }
 
                     // Add Branches:
@@ -774,6 +821,24 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
             SetElementOrderByOutputs();
 
             DeleteUnnecessaryConnectionEntries();
+        }
+
+        /// <summary>
+        /// Extracts code tags and code (if present) from a connection label.
+        /// It appears that a connection can only have label text or code, not both.
+        /// </summary>
+        /// <param name="label">Original label.</param>
+        /// <param name="code">Extracted code.</param>
+        /// <returns>Full label if no code tag, or empty string if extracted code.</returns>
+        protected string ExtractCode(string label, out string code)
+        {
+            code = string.Empty;
+            if (string.IsNullOrEmpty(label) || !label.Contains("<code>")) return label;
+            var codeOpenTagPos = label.IndexOf("<code>");
+            var codeCloseTagPos = label.IndexOf("</code>");
+            var codePos = codeOpenTagPos + "<code>".Length;
+            code = label.Substring(codePos, codeCloseTagPos - codePos);
+            return string.Empty;
         }
 
         protected void SetElementOrderByOutputs()
@@ -917,6 +982,9 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
                 entry = template.CreateDialogueEntry(template.GetNextDialogueEntryID(conversation), conversation.id, string.Empty);
                 conversation.dialogueEntries.Add(entry);
                 dialogueEntryLookup[guid] = entry;
+                entry.DialogueText = string.Empty;
+                entry.MenuText = string.Empty;
+                entry.Sequence = string.Empty;
                 if (importGuids)
                 {
                     entry.fields.Add(new Field("Guid", guid, FieldType.Text));
@@ -1078,10 +1146,11 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
                 s = s.Insert(match.Index, "\n");
             }
             s = BlockRegex.Replace(s, string.Empty);
-            return s.Replace(@"&lt;", "<")
-                .Replace(@"&gt;", ">")
-                .Replace(@"<strong>", "<b>")
-                .Replace(@"</strong>", "</b>").Trim();
+            return Tools.RemoveHtml(s).Trim();
+            //return s.Replace(@"&lt;", "<")
+            //    .Replace(@"&gt;", ">")
+            //    .Replace(@"<strong>", "<b>")
+            //    .Replace(@"</strong>", "</b>").Trim();
         }
 
         protected enum ContentPieceType { Text, Code }
@@ -1107,7 +1176,7 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
             }
             else if (!content.Contains("<code>"))
             {
-                entry.DialogueText = content;
+                entry.DialogueText = TouchUpRichText(content);
             }
             else
             {
@@ -1258,7 +1327,7 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
                     }
                     else
                     {
-                        postIfEntry.DialogueText = postIfField.value;
+                        postIfEntry.DialogueText = TouchUpRichText(postIfField.value);
                     }
 
                     // Clear entry's links (since postIfEntry now links to them instead):
@@ -1303,7 +1372,7 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
             codeEntry.outgoingLinks.Add(new Link(conversation.id, codeEntry.id, conversation.id, postIfEntry.id));
             codeEntry.isGroup = string.IsNullOrEmpty(textField.value);
             codeEntry.Sequence = codeEntry.isGroup ? string.Empty : ContinueSequence;
-            codeEntry.DialogueText = textField.value;
+            codeEntry.DialogueText = TouchUpRichText(textField.value);
             codeEntry.conditionsString = ConvertArcscriptToLua(codeField.value);
             if (innerCodeField != null) codeEntry.userScript = ConvertArcscriptToLua(innerCodeField.value, true);
             entry.outgoingLinks.Add(new Link(conversation.id, entry.id, conversation.id, codeEntry.id));
@@ -1312,6 +1381,8 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
         protected string ConvertArcscriptToLua(string code, bool convertIncrementors = false)
         {
             if (string.IsNullOrEmpty(code)) return code;
+            code = Tools.RemoveHtml(code);
+            code = ConvertVisits(code);
             if (convertIncrementors) code = ConvertIncrementors(code);
             code = ConvertArcscriptVariablesToLua(code);
             code = code.Replace("!=", "~=")
@@ -1320,6 +1391,12 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
                 .Replace("&&", "and")
                 .Replace("||", "or");
             return code;
+        }
+
+        protected string ConvertVisits(string code)
+        {
+            return code.Replace("visits()", "visits(\"\")"); 
+            //[TODO] Fully process node identifiers in visits().
         }
 
         protected string ConvertIncrementors(string code)
@@ -1348,6 +1425,15 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
                 if (ReservedKeywords.Contains(identifier)) continue;
                 if (database.variables.Find(x => x.Name == identifier) == null) continue;
                 var luaVariable = $"Variable[\"{identifier}\"]";
+                if (numPlayers > 1)
+                {
+                    //--- Blue Goo Games contribution to support multiple actors:
+                    // If identifier begins with global, set luaVariable = $"Variable[\"{identifier}\"]";	
+                    // Else set luaVariable = $Variable[Variable[\"ActorIndex\"] .. \"_{identifier}\"]	
+                    // Create string array of words that are considered as global variables	
+                    bool isGlobalVariable = identifier.StartsWith("global") || globalVariables.Contains(identifier);
+                    luaVariable = isGlobalVariable ? $"Variable[\"{identifier}\"]" : $"Variable[Variable[\"ActorIndex\"] .. \"_{identifier}\"]";
+                }
                 code = Replace(code, match.Index, match.Length, luaVariable);
             }
             return code;

@@ -334,8 +334,24 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
                         return false;
                     }
 
+                    // Writes Actors_LN.csv file:
+                    var filename = localizationLanguages.outputFolder + "/Actors_" + language + ".csv";
+                    using (var file = new StreamWriter(filename, false, new UTF8Encoding(true)))
+                    {
+                        file.WriteLine(language);
+                        file.WriteLine("Name, Display Name, Translated Display Name");
+                        foreach (var a in database.actors)
+                        {
+                            var actorName = WrapCSVValue(a.Name);
+                            var displayName = WrapCSVValue(a.LookupValue("Display Name"));
+                            var translatedDisplayName = WrapCSVValue(a.LookupValue("Display Name " + language));
+                            file.WriteLine($"{actorName}, {displayName}, {translatedDisplayName}");
+                        }
+                        file.Close();
+                    }
+
                     // Write Dialogue_LN.csv file:
-                    var filename = localizationLanguages.outputFolder + "/Dialogue_" + language + ".csv";
+                    filename = localizationLanguages.outputFolder + "/Dialogue_" + language + ".csv";
                     using (var file = new StreamWriter(filename, false, new UTF8Encoding(true)))
                     {
                         file.WriteLine(language);
@@ -415,7 +431,7 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
                             numItems++;
                         }
                         else
-                        { 
+                        {
                             numQuests++;
                             maxEntryCount = Mathf.Max(maxEntryCount, item.LookupInt("Entry Count"));
                         }
@@ -627,9 +643,39 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
                         return;
                     }
 
-                    // Read dialogue CSV file:
-                    var filename = localizationLanguages.outputFolder + "/Dialogue_" + language + ".csv";
+                    // Read actors CSV file:
+                    var filename = localizationLanguages.outputFolder + "/Actors_" + language + ".csv";
                     var lines = ReadCSV(filename);
+                    CombineMultilineCSVSourceLines(lines);
+                    for (int j = 2; j < lines.Count; j++)
+                    {
+                        var columns = GetCSVColumnsFromLine(lines[j]);
+                        if (columns.Count < 3)
+                        {
+                            Debug.LogError(filename + ":" + (j + 1) + " Invalid line: " + lines[j]);
+                        }
+                        else
+                        {
+                            var actorName = columns[0].Trim();
+                            var actorDisplayName = columns[1].Trim();
+                            var translatedName = columns[2].Trim();
+                            var actor = database.GetActor(actorName);
+                            if (actor == null)
+                            {
+                                Debug.LogError(filename + ": No actor in database is named '" + actorName + "'.");
+                                continue;
+                            }
+                            Field.SetValue(actor.fields, "Display Name " + language, translatedName);
+                            if (alsoImportMainText && !string.IsNullOrEmpty(actorDisplayName))
+                            {
+                                Field.SetValue(actor.fields, "Display Name", actorDisplayName);
+                            }
+                        }
+                    }
+
+                    // Read dialogue CSV file:
+                    filename = localizationLanguages.outputFolder + "/Dialogue_" + language + ".csv";
+                    lines = ReadCSV(filename);
                     CombineMultilineCSVSourceLines(lines);
                     for (int j = 2; j < lines.Count; j++)
                     {

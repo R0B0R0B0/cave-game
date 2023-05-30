@@ -30,6 +30,8 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
 
         public bool importPortraits = true;
         public bool importGuids = false;
+        public int numPlayers = 1;
+        public string globalVariables = "day, time";
 
         public string prefsPath;
 
@@ -58,6 +60,8 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
         protected static GUIContent ClearPrefsLabel = new GUIContent("Clear Prefs...", "Clear import settings.");
         protected static GUIContent ImportPortraitsLabel = new GUIContent("Import Portraits", "Import portrait images from image files in Arcweave project folder.");
         protected static GUIContent ImportGuidsLabel = new GUIContent("Import Guids As Fields", "Add Guid field containing GUID for each object (element, component, etc.) imported from Arcweave project.");
+        protected static GUIContent NumPlayersLabel = new GUIContent("# Player Actors", "Set to 1 for single player games. Increase for local multiplayer games. Will create player-specific versions of variables.");
+        protected static GUIContent GlobalVariablesLabel = new GUIContent("Global Variables", "Comma-separated list of global variables. Arcscript/Lua code referencing global variables that aren't player-specific. Importer won't prepend 'Player#_' to front of variable name.");
 
         public ArcweaveImporterWindowPrefs importerPrefs { get { return prefs; } }
 
@@ -94,6 +98,7 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
             DrawBoardTypeSection();
             DrawImportPortraitsSection();
             DrawImportGuidSection();
+            DrawNumPlayersSection();
             DrawDestinationSection();
             DrawConversionButtons();
         }
@@ -236,6 +241,21 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
             prefs.importGuids = EditorGUILayout.Toggle(ImportGuidsLabel, prefs.importGuids);
         }
 
+        protected void DrawNumPlayersSection()
+        {
+            if (!arcweaveImporter.IsJsonLoaded()) return;
+            EditorGUI.BeginChangeCheck();
+            prefs.numPlayers = EditorGUILayout.IntField(NumPlayersLabel, prefs.numPlayers);
+            if (EditorGUI.EndChangeCheck())
+            {
+                prefs.numPlayers = Mathf.Clamp(prefs.numPlayers, 1, 64);
+            };
+            if (prefs.numPlayers > 1)
+            {
+                prefs.globalVariables = EditorGUILayout.TextField(GlobalVariablesLabel, prefs.globalVariables);
+            }
+        }
+
         protected override void DrawConversionButtons()
         {
             EditorGUILayout.BeginHorizontal();
@@ -329,8 +349,10 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
                 prefs.componentsFoldout,
                 prefs.importPortraits,
                 prefs.importGuids,
+                prefs.numPlayers,
+                prefs.globalVariables,
                 prefs.merge,
-                template);
+                template ?? TemplateTools.LoadFromEditorPrefs());
         }
 
         protected bool DownloadJson()

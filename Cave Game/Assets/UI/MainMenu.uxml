@@ -5,9 +5,9 @@
             <ui:Label text="Cave Game Demo" display-tooltip-when-elided="true" class="text" />
         </ui:VisualElement>
         <ui:VisualElement style="align-items: center; justify-content: center; flex-grow: 1;">
-            <ui:Button text="Play" display-tooltip-when-elided="true" class="button" />
-            <ui:Button text="Settings" display-tooltip-when-elided="true" class="button" style="height: 30%; width: 200px;" />
-            <ui:Button text="Quit" display-tooltip-when-elided="true" class="button" style="height: 30%; width: 200px;" />
+            <ui:Button text="Play" display-tooltip-when-elided="true" name="playButton" class="button" />
+            <ui:Button text="Settings" display-tooltip-when-elided="true" name="settingsButton" class="button" style="height: 30%; width: 200px;" />
+            <ui:Button text="Quit" display-tooltip-when-elided="true" name="quitButton" class="button" style="height: 30%; width: 200px;" />
         </ui:VisualElement>
     </ui:VisualElement>
     <ui:VisualElement style="height: 30%;" />

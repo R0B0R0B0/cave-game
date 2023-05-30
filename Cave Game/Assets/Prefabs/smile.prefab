@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 204428265768900651}
   - component: {fileID: 204428265768900650}
   - component: {fileID: 204428265768900653}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Pellet 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -127,7 +127,7 @@ GameObject:
   - component: {fileID: 204428265944032300}
   - component: {fileID: 204428265944032303}
   - component: {fileID: 204428265944032302}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Pellet 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -242,7 +242,7 @@ GameObject:
   - component: {fileID: 204428266055085077}
   - component: {fileID: 204428266055085076}
   - component: {fileID: 204428266055085079}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Pellet 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -363,7 +363,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &5975824497874346554
 Transform:
   m_ObjectHideFlags: 0

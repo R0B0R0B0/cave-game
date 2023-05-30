@@ -1,5 +1,4 @@
-// Recompile at 4.3.2023 14.06.57
-// Copyright (c) Pixel Crushers. All rights reserved.
+﻿// Copyright (c) Pixel Crushers. All rights reserved.
 
 using UnityEngine;
 using UnityEngine.Events;
@@ -119,6 +118,7 @@ namespace PixelCrushers.DialogueSystem
         protected List<GameObject> instantiatedButtonPool { get { return m_instantiatedButtonPool; } }
         private List<GameObject> m_instantiatedButtonPool = new List<GameObject>();
         private string m_processedAutonumberFormat = string.Empty;
+        private Coroutine m_scrollbarCoroutine = null;
         protected const float WaitForCloseTimeoutDuration = 8f;
 
         protected StandardUITimer m_timer = null;
@@ -196,7 +196,6 @@ namespace PixelCrushers.DialogueSystem
             Open();
             Focus();
             RefreshSelectablesList();
-            if (InputDeviceManager.autoFocus) SetFocus(firstSelected);
             if (blockInputDuration > 0)
             {
                 DisableInput();
@@ -204,10 +203,11 @@ namespace PixelCrushers.DialogueSystem
             }
             else
             {
+                if (InputDeviceManager.autoFocus) SetFocus(firstSelected);
                 if (s_isInputDisabled) EnableInput();
             }
 #if TMP_PRESENT
-            StartCoroutine(CheckTMProAutoScroll());
+            DialogueManager.instance.StartCoroutine(CheckTMProAutoScroll());
 #endif
         }
 
@@ -387,22 +387,7 @@ namespace PixelCrushers.DialogueSystem
 
                 if ((buttonTemplate != null) && (buttonTemplateHolder != null))
                 {
-                    // Reset scrollbar to top:
-                    //--- Scroll even if no scrollbar: if (buttonTemplateScrollbar != null)
-                    {
-                        if (buttonTemplateScrollbarResetValue >= 0)
-                        {
-                            if (buttonTemplateScrollbar != null) buttonTemplateScrollbar.value = buttonTemplateScrollbarResetValue;
-                            if (scrollbarEnabler != null)
-                            {
-                                scrollbarEnabler.CheckScrollbarWithResetValue(buttonTemplateScrollbarResetValue);
-                            }
-                        }
-                        else if (scrollbarEnabler != null)
-                        {
-                            scrollbarEnabler.CheckScrollbar();
-                        }
-                    }
+                    if (scrollbarEnabler != null) CheckScrollbar();
 
                     // Instantiate buttons from template:
                     for (int i = 0; i < responses.Length; i++)
@@ -466,6 +451,34 @@ namespace PixelCrushers.DialogueSystem
             if (explicitNavigationForTemplateButtons) SetupTemplateButtonNavigation(hasDisabledButton);
 
             NotifyContentChanged();
+        }
+
+        protected virtual void CheckScrollbar()
+        {
+            if (scrollbarEnabler == null) return;
+            if (m_scrollbarCoroutine != null) StopCoroutine(m_scrollbarCoroutine);
+            m_scrollbarCoroutine = dialogueUI.StartCoroutine(CheckScrollbarCoroutine());
+        }
+
+        protected IEnumerator CheckScrollbarCoroutine()
+        {
+            var timeout = Time.realtimeSinceStartup + UIAnimatorMonitor.MaxWaitDuration;
+            while (!isOpen && Time.realtimeSinceStartup < timeout)
+            {
+                yield return null;
+            }
+            if (buttonTemplateScrollbarResetValue >= 0)
+            {
+                if (buttonTemplateScrollbar != null) buttonTemplateScrollbar.value = buttonTemplateScrollbarResetValue;
+                if (scrollbarEnabler != null)
+                {
+                    scrollbarEnabler.CheckScrollbarWithResetValue(buttonTemplateScrollbarResetValue);
+                }
+            }
+            else if (scrollbarEnabler != null)
+            {
+                scrollbarEnabler.CheckScrollbar();
+            }
         }
 
         protected virtual void SetResponseButton(StandardUIResponseButton button, Response response, Transform target, int buttonNumber)

@@ -539,6 +539,8 @@ namespace PixelCrushers.DialogueSystem
             m_characterInfoCache.Clear();
             m_actorInfo = GetCharacterInfo(conversation.ActorID, actor);
             m_conversantInfo = GetCharacterInfo(conversation.ConversantID, conversant);
+            if (m_actorInfo != null) m_characterInfoCache[m_actorInfo.id] = m_actorInfo;
+            if (m_conversantInfo != null) m_characterInfoCache[m_conversantInfo.id] = m_conversantInfo;
             DialogueLua.SetParticipants(m_actorInfo.Name, m_conversantInfo.Name, m_actorInfo.nameInDatabase, m_conversantInfo.nameInDatabase);
             IdentifyPCPortrait(conversation);
         }

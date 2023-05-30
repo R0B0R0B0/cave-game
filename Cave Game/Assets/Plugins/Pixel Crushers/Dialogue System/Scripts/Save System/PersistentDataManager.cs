@@ -434,6 +434,7 @@ namespace PixelCrushers.DialogueSystem
                 var first = true;
                 foreach (var key in variableTable.Keys)
                 {
+                    if (string.IsNullOrEmpty(key)) continue;
                     if (!first) sb.Append(", ");
                     first = false;
                     var value = variableTable[key.ToString()];
@@ -484,14 +485,15 @@ namespace PixelCrushers.DialogueSystem
                             // If in the database, just record quest statuses and tracking:
                             foreach (var fieldKey in fields.Keys)
                             {
+                                if (string.IsNullOrEmpty(fieldKey)) continue;
                                 string fieldTitle = fieldKey.ToString();
                                 if (fieldTitle.EndsWith("State"))
                                 {
                                     sb.AppendFormat("Item[\"{0}\"].{1}=\"{2}\"; ", new System.Object[] { DialogueLua.StringToTableIndex(title), (System.Object)fieldTitle, (System.Object)fields[fieldTitle] });
                                 }
-                                else if (string.Equals(fieldTitle, "Track"))
+                                else if (string.Equals(fieldTitle, "Track") || string.Equals(fieldTitle, "Viewed"))
                                 {
-                                    sb.AppendFormat("Item[\"{0}\"].Track={1}; ", new System.Object[] { DialogueLua.StringToTableIndex(title), fields[fieldTitle].ToString().ToLower() });
+                                    sb.AppendFormat("Item[\"{0}\"].{1}={2}; ", new System.Object[] { DialogueLua.StringToTableIndex(title), fieldTitle, fields[fieldTitle].ToString().ToLower() });
                                 }
                             }
                         }
@@ -519,7 +521,8 @@ namespace PixelCrushers.DialogueSystem
                 {
                     foreach (var key in fields.Keys)
                     {
-                        var value = fields[key.ToString()];
+                        if (string.IsNullOrEmpty(key)) continue;
+                        var value = fields[key];
                         var valueString = GetFieldValueString(value);
                         if (string.Equals(key, "Pictures")) valueString = valueString.Replace("\\", "/"); // Sanitize backslashes in Pictures.
                         sb.AppendFormat("{0}={1}, ", new System.Object[] { GetFieldKeyString(key), valueString });
@@ -606,7 +609,8 @@ namespace PixelCrushers.DialogueSystem
                 var first = true;
                 foreach (var key in locationTable.Keys)
                 {
-                    LuaTableWrapper fields = locationTable[key.ToString()] as LuaTableWrapper;
+                    if (string.IsNullOrEmpty(key)) continue;
+                    LuaTableWrapper fields = locationTable[key] as LuaTableWrapper;
                     if (!first) sb.Append(", ");
                     first = false;
                     sb.Append(GetFieldKeyString(key));
@@ -645,7 +649,8 @@ namespace PixelCrushers.DialogueSystem
                 var first = true;
                 foreach (var key in actorTable.Keys)
                 {
-                    LuaTableWrapper fields = actorTable[key.ToString()] as LuaTableWrapper;
+                    if (string.IsNullOrEmpty(key)) continue;
+                    LuaTableWrapper fields = actorTable[key] as LuaTableWrapper;
                     if (!first) sb.Append(", ");
                     first = false;
                     sb.Append(GetFieldKeyString(key));
@@ -676,9 +681,10 @@ namespace PixelCrushers.DialogueSystem
             var first = true;
             foreach (var key in fields.Keys)
             {
+                if (string.IsNullOrEmpty(key)) continue;
                 if (!first) sb.Append(", ");
                 first = false;
-                var value = fields[key.ToString()];
+                var value = fields[key];
                 sb.AppendFormat("{0}={1}", new System.Object[] { GetFieldKeyString(key), GetFieldValueString(value) });
             }
         }
@@ -757,6 +763,7 @@ namespace PixelCrushers.DialogueSystem
                         var first = true;
                         foreach (var key in fields.Keys)
                         {
+                            if (string.IsNullOrEmpty(key)) continue;
                             if (string.Equals(key, "Dialog")) continue;
                             if (!first) sb.Append(", ");
                             first = false;

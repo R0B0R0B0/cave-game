@@ -1,5 +1,4 @@
-// Recompile at 4.3.2023 14.06.57
-
+// Recompile at 1/21/2023 3:18:05 PM
 // Copyright (c) Pixel Crushers. All rights reserved.
 
 using UnityEngine;
@@ -106,12 +105,11 @@ namespace PixelCrushers
 
         protected virtual void OnEnable()
         {
-            UpdateText();
+            if (started) UpdateText();
         }
 
         public virtual void UpdateText()
         {
-            if (!started) return;
             var language = (UILocalizationManager.instance != null) ? UILocalizationManager.instance.currentLanguage : string.Empty;
 
             // Skip if no text table or language set:

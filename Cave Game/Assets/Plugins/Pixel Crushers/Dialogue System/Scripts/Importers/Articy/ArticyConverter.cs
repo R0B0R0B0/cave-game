@@ -382,7 +382,7 @@ namespace PixelCrushers.DialogueSystem.Articy
                         if (!string.IsNullOrEmpty(field.title))
                         {
                             var fieldTitle = ConvertSpecialTechnicalNames(field.title);
-                            var fieldValue = IsOtherScriptField(fieldTitle) ? ConvertExpression(field.value) : field.value;
+                            var fieldValue = IsOtherScriptField(fieldTitle) ? ConvertExpression(field.value, false) : field.value;
                             var existingField = Field.Lookup(fields, fieldTitle);
                             if (existingField != null)
                             {
@@ -1301,7 +1301,7 @@ namespace PixelCrushers.DialogueSystem.Articy
             //conditionEntry.currentSequence = "Continue()";
             conditionEntry.isGroup = true;
 
-            string trueLuaConditions = ConvertExpression(condition.expression);
+            string trueLuaConditions = ConvertExpression(condition.expression, true);
             string falseLuaConditions = string.IsNullOrEmpty(trueLuaConditions)
                 ? "false" : string.Format("({0}) == false", trueLuaConditions);
 
@@ -1312,7 +1312,7 @@ namespace PixelCrushers.DialogueSystem.Articy
                 if (pin.semantic == ArticyData.SemanticType.Input)
                 {
                     RecordPin(pin, conditionEntry);
-                    conditionEntry.conditionsString = AddToConditions(conditionEntry.conditionsString, ConvertExpression(pin.expression));
+                    conditionEntry.conditionsString = AddToConditions(conditionEntry.conditionsString, ConvertExpression(pin.expression, true));
                 }
                 else if (pin.semantic == ArticyData.SemanticType.Output)
                 {
@@ -1329,7 +1329,7 @@ namespace PixelCrushers.DialogueSystem.Articy
                     entry.isGroup = true;
                     string luaConditions = isTruePath ? trueLuaConditions : falseLuaConditions;
                     entry.conditionsString = AddToConditions(entry.conditionsString, luaConditions);
-                    entry.userScript = AddToUserScript(entry.userScript, ConvertExpression(pin.expression));
+                    entry.userScript = AddToUserScript(entry.userScript, ConvertExpression(pin.expression, false));
 
                     Link link = new Link();
                     link.originConversationID = conditionEntry.conversationID;
@@ -1354,7 +1354,7 @@ namespace PixelCrushers.DialogueSystem.Articy
             entry.currentSequence = "Continue()"; // Since it's not a group, make sure we continue past it immediately.
             entry.isGroup = false; // Since groups are processed one level ahead, don't make this a group: entry.isGroup = true;
             entry.conditionsString = string.Empty;
-            entry.userScript = AddToUserScript(entry.userScript, ConvertExpression(instruction.expression));
+            entry.userScript = AddToUserScript(entry.userScript, ConvertExpression(instruction.expression, false));
             ConvertPinExpressionsToConditionsAndScripts(entry, instruction.pins);
             RecordPins(instruction.pins, entry);
         }
@@ -1407,13 +1407,13 @@ namespace PixelCrushers.DialogueSystem.Articy
                     case ArticyData.SemanticType.Input:
                         if (convertInput)
                         {
-                            entry.conditionsString = AddToConditions(entry.conditionsString, ConvertExpression(pin.expression));
+                            entry.conditionsString = AddToConditions(entry.conditionsString, ConvertExpression(pin.expression, true));
                         }
                         break;
                     case ArticyData.SemanticType.Output:
                         if (convertOutput)
                         {
-                            entry.userScript = AddToUserScript(entry.userScript, ConvertExpression(pin.expression));
+                            entry.userScript = AddToUserScript(entry.userScript, ConvertExpression(pin.expression, false));
                         }
                         break;
                     default:
@@ -1428,9 +1428,11 @@ namespace PixelCrushers.DialogueSystem.Articy
         /// </summary>
         /// <returns>A Lua version of the expression.</returns>
         /// <param name='expression'>articy expresso expression.</param>
-        public static string ConvertExpression(string expression)
+        public static string ConvertExpression(string expression, bool isCondition = false)
         {
             if (string.IsNullOrEmpty(expression)) return expression;
+
+            if (isCondition && expression.Trim().StartsWith("//") && !expression.Contains("\n")) return string.Empty;
 
             // If already Lua, return it:
             if (expression.Contains("Variable[")) return expression;
@@ -1439,10 +1441,11 @@ namespace PixelCrushers.DialogueSystem.Articy
             if (!expression.Contains(";")) return ConvertSingleExpression(expression);
 
             var s = string.Empty;
-            var singleExpressions = expression.Split(';'); // TO DO: Handle semicolons nested inside string literals.
+            var singleExpressions = expression.Split(';'); // [TODO]: Handle semicolons nested inside string literals.
             for (int i = 0; i < singleExpressions.Length; i++)
             {
                 var singleExpression = singleExpressions[i];
+                if (isCondition && singleExpression.Trim().StartsWith("//")) continue;
                 if (string.IsNullOrEmpty(singleExpression)) continue;
                 if (s.Length > 0) s += ";\n";
                 s += ConvertSingleExpression(singleExpression);
@@ -1489,7 +1492,7 @@ namespace PixelCrushers.DialogueSystem.Articy
             if (expression.Contains("Variable[")) return expression;
 
             // Convert comments:
-            string s = expression.Trim().Replace("//", "--");
+            string s = expression.Trim().Replace("///", "").Replace("//", "--");
 
             // Convert random to math.random:
             s = s.Replace("random(", "math.random(").Replace("random (", "math.random(");
@@ -1518,7 +1521,13 @@ namespace PixelCrushers.DialogueSystem.Articy
             }
 
             // Convert negation (!) to "==false":
-            s = s.Replace("!Variable", "false == Variable");
+            s = s.Replace("!Variable", "not Variable");
+            s = s.Replace("!(", "not (");
+            const string negatedFunctionPattern = @"!\b(_\w+|[\w-[0-9_]]\w*)\b";
+            s = Regex.Replace(s, negatedFunctionPattern, (match) =>
+            {
+                return "not " + match.Value.Substring(1);
+            });
 
             // Convert arithmetic assignment operators (e.g., +=):
             if (ContainsArithmeticAssignment(s))

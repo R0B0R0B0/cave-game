@@ -67,10 +67,10 @@ namespace PixelCrushers.DialogueSystem.Yarn
     public class YarnConverterWindow : AbstractConverterWindow<YarnConverterPrefs>
     {
 
-        [MenuItem("Tools/Pixel Crushers/Dialogue System/Import/Yarn...", false, 1)]
+        [MenuItem("Tools/Pixel Crushers/Dialogue System/Import/Yarn 1...", false, 1)]
         public static void Init()
         {
-            var window = EditorWindow.GetWindow(typeof(YarnConverterWindow), false, "Yarn Importer");
+            var window = EditorWindow.GetWindow(typeof(YarnConverterWindow), false, "Yarn 1 Importer");
             window.minSize = new Vector2(400, 400);
         }
 

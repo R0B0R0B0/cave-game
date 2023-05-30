@@ -97,13 +97,13 @@ namespace PixelCrushers.DialogueSystem
             alternateGameObjectDragDropCommand = commands.alternateGameObjectDragDropCommand;
         }
 
-        public static string DrawLayout(GUIContent guiContent, string sequence, ref Rect rect)
+        public static string DrawLayout(GUIContent guiContent, string sequence, ref Rect rect, DialogueEntry entry = null, Field field = null)
         {
             var syntaxState = SequenceSyntaxState.Unchecked;
-            return DrawLayout(guiContent, sequence, ref rect, ref syntaxState);
+            return DrawLayout(guiContent, sequence, ref rect, ref syntaxState, entry, field);
         }
 
-        public static string DrawLayout(GUIContent guiContent, string sequence, ref Rect rect, ref SequenceSyntaxState syntaxState)
+        public static string DrawLayout(GUIContent guiContent, string sequence, ref Rect rect, ref SequenceSyntaxState syntaxState, DialogueEntry entry = null, Field field = null)
         {
             if (!string.IsNullOrEmpty(queuedText))
             {
@@ -115,6 +115,12 @@ namespace PixelCrushers.DialogueSystem
 
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField(guiContent);
+
+            if (entry != null && field != null && DialogueEditor.DialogueEditorWindow.instance != null)
+            {
+                DialogueEditor.DialogueEditorWindow.instance.DrawAISequence(entry, field);
+            }
+
             EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(sequence));
             if (GUILayout.Button(new GUIContent("Check", "Check sequence for errors."), EditorStyles.miniButton, GUILayout.Width(52)))
             {

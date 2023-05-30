@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine.SceneManagement;
+using System.Linq;
+using System.Text;
 
 namespace PixelCrushers.DialogueSystem
 {
@@ -346,7 +348,7 @@ namespace PixelCrushers.DialogueSystem
         public static string StripTextMeshProTags(string s)
         {
             if (!s.Contains("<")) return s;
-            return Regex.Replace(s, @"<[Bb]>|</[Bb]>|<[Ii]>|</[Ii]>|<color=[#]?\w+>|<color=""\w+"">|</color>|" +
+            return Regex.Replace(s, @"<[Bb]>|</[Bb]>|<[Ii]>|</[Ii]>|<color=[#]?\w+>|<color=""\w+"">|</color>|<#\w+>|" +
                 @"<align=\w+>|</align>|<font=[^>]+>|</font>|<indent=\w+\%>|<indent=\w+>|</indent>|" +
                 @"<line-height=\w+%>|<line-height=\w+>|</line-height>|<line-indent=\w+\%>|<line-ident=\w+>|</line-ident>|" +
                 @"<link=""[^""]+"">|</link>|<lowercase>|</lowercase>|<uppercase>|</uppercase>|" +
@@ -657,6 +659,159 @@ namespace PixelCrushers.DialogueSystem
         }
 
 #endif
+
+        #region Replace HTML
+
+        private static string[] htmlTags = new string[] { "<html>", "<head>", "<style>", "#s0", "{text-align:left;}", "#s1",
+            "{font-size:11pt;}", "</style>", "</head>", "<body>", "<p id=\"s0\">", "<span id=\"s1\">",
+            "</span>", "</p>", "</body>", "</html>" };
+
+        /// <summary>
+        /// Removes HTML tags from a string.
+        /// </summary>
+        /// <returns>
+        /// The string without HTML.
+        /// </returns>
+        /// <param name='s'>
+        /// The HTML-filled string.
+        /// </param>
+        public static string RemoveHtml(string s)
+        {
+            // [TODO] Replace with something like: http://www.codeproject.com/Articles/298519/Fast-Token-Replacement-in-Csharp
+            if (!string.IsNullOrEmpty(s))
+            {
+                s = ReplaceMarkup(s);
+                foreach (string htmlTag in htmlTags)
+                {
+                    s = s.Replace(htmlTag, string.Empty);
+                }
+                if (s.Contains("&#")) s = ReplaceHtmlCharacterCodes(s);
+                s = s.Replace("&quot;", "\"");
+                s = s.Replace("&amp;", "&");
+                s = s.Replace("&lt;", "<");
+                s = s.Replace("&gt;", ">");
+                s = s.Replace("&nbsp;", " ");
+                s = s.Trim();
+            }
+            return s;
+        }
+
+        /// <summary>
+        /// Selectively replaces HTML character codes (numeric character references) that articy uses.
+        /// </summary>
+        public static string ReplaceHtmlCharacterCodes(string s)
+        {
+            var text = s;
+            Regex regex = new Regex(@"&#[0-9]+;");
+            text = regex.Replace(text, delegate (Match match)
+            {
+                string codeString = match.Value.Substring(2, match.Value.Length - 3);
+                int numericCode;
+                if (!int.TryParse(codeString, out numericCode)) return match.Value;
+                return char.ConvertFromUtf32(numericCode).ToString();
+            });
+            return text;
+        }
+
+        //==================================================================
+        // Code contributed by Racoon7:
+
+        const RegexOptions Options = RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase;
+        static readonly Regex StylesRegex = new Regex(@"<style>(?<styles>.*?)</style>", Options); // Get the part of text dealing with styles
+        static readonly Regex StyleRegex = new Regex(@"#(?<id>s[1-9]\d*) {(?<style>.*?)}", Options); // The first style "s0" is always a paragraph
+
+        // Check a specific style for these.
+        static readonly Regex BoldRegex = new Regex(@"font-weight\s*?:\s*?bold", Options);
+        static readonly Regex ItalicRegex = new Regex(@"font-style\s*?:\s*?italic", Options);
+        static readonly Regex ColorRegex = new Regex(@"color\s*?:\s*?(?<color>#\w{6})", Options);
+
+        // Apply the styles to the actual text. The style tags never overlap, so they can be processed in order.
+        static readonly Regex TextRegex = new Regex(@"<p id=""s0"">(?<text>.*?)</p>", Options);
+        static readonly Regex PartsRegex = new Regex(@"<span id=""(?<id>s[1-9]\d*)"">(?<text>.*?)</span>", Options); // Style id : Pure text  
+
+        static string ReplaceMarkup(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return s;
+            return ConvertToRichText(s);
+        }
+
+        /// <summary>Parses given text and converts the Articy markup to rich text.</summary>
+        static string ConvertToRichText(string s)
+        {
+            s = s.Replace(@"&#39;", "'") // Apostrophe
+                .Replace(@"<strong>", "<b>")
+                .Replace(@"</strong>", "</b>").Trim();
+
+            // Get styles
+            if (!StylesRegex.IsMatch(s)) return s; // No styles, pure text
+            string stylesText = StylesRegex.Match(s).Value;
+            var numberedStyles = StyleRegex.Matches(stylesText)
+                                           .Cast<Match>()
+                                           .Select(match => new {
+                                               Id = match.Groups["id"].Value,
+                                               Style = match.Groups["style"].Value
+                                           });
+            var styles = numberedStyles.Select(style => new {
+                style.Id,
+                Bold = BoldRegex.IsMatch(style.Style),
+                Italic = ItalicRegex.IsMatch(style.Style),
+                Color = ColorRegex.Match(style.Style).Groups["color"].Value
+            });
+
+
+
+            // Multiparagraph fix contributed by Francois Dujardin:
+            var allParagraphs = TextRegex.Matches(s);
+
+            //process each paragraph
+            List<string> paragraphs = new List<string>();
+            foreach (var v in allParagraphs)
+            {
+                var innerTexts = PartsRegex.Matches(v.ToString())
+                                    .Cast<Match>()
+                                    .Select(match => new {
+                                        StyleId = match.Groups["id"].Value,
+                                        Text = match.Groups["text"].Value
+                                    });
+                // Apply the styles to the texts
+                var editedParts = innerTexts.Select(text => {
+                    var currentStyle = styles.First(style => style.Id == text.StyleId);
+                    return ApplyStyle(
+                            innerText: text.Text,
+                            bold: currentStyle.Bold,
+                            italic: currentStyle.Italic,
+                            color: currentStyle.Color
+                    );
+                }).ToArray();
+                string tmp = string.Join(string.Empty, editedParts);
+                if (!string.IsNullOrEmpty(tmp))
+                    paragraphs.Add(tmp);
+            }
+            string editedLine = string.Join("\n", paragraphs.ToArray());
+            return editedLine;
+        }
+
+        /// <summary>Wraps a given text in rich text tags.</summary>
+        static string ApplyStyle(string innerText, bool bold, bool italic, string color)
+        {
+            var builder = new StringBuilder(innerText);
+
+            if (bold) WrapInTag(ref builder, "b");
+            if (italic) WrapInTag(ref builder, "i");
+            if (color != string.Empty) WrapInTag(ref builder, "color", color);
+
+            return builder.ToString();
+        }
+
+        static void WrapInTag(ref StringBuilder builder, string tag, string value = "")
+        {
+            builder.Insert(0, (value != string.Empty) // opening tag
+                    ? string.Format(@"<{0}={1}>", tag, value) // the tag has a value
+                    : string.Format(@"<{0}>", tag)); // no value
+            builder.Append(string.Format(@"</{0}>", tag)); // closing tag
+        }
+
+        #endregion
 
     }
 

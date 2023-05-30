@@ -231,6 +231,7 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
 
         private void BuildLanguageListFromConversation()
         {
+            languages.Clear();
             for (int i = 0; i < currentConversation.dialogueEntries.Count; i++)
             {
                 var entry = currentConversation.dialogueEntries[i];
@@ -660,18 +661,18 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
                 EditorGUI.BeginChangeCheck();
 
                 // Menu text (including localized if defined in template):
-                var menuText = entry.MenuText;
+                var menuTextField = Field.Lookup(entry.fields, "Menu Text");
+                var menuText = menuTextField.value;
                 var menuTextLabel = string.IsNullOrEmpty(menuText) ? "Menu Text" : ("Menu Text (" + menuText.Length + " chars)");
-                EditorGUILayout.LabelField(new GUIContent(menuTextLabel, "Response menu text (e.g., short paraphrase). If blank, uses Dialogue Text"));
-                entry.MenuText = EditorGUILayout.TextArea(menuText);
-                DrawLocalizedVersions(entry.fields, "Menu Text {0}", false, FieldType.Text);
+                DrawRevisableTextAreaField(new GUIContent(menuTextLabel, "Response menu text (e.g., short paraphrase). If blank, uses Dialogue Text."), null, currentEntry, menuTextField);
+                DrawLocalizedVersions(entry, entry.fields, "Menu Text {0}", false, FieldType.Text);
 
                 // Dialogue text (including localized):
-                var dialogueText = entry.DialogueText;
+                var dialogueTextField = Field.Lookup(entry.fields, "Dialogue Text");
+                var dialogueText = dialogueTextField.value;
                 var dialogueTextLabel = string.IsNullOrEmpty(dialogueText) ? "Dialogue Text" : ("Dialogue Text (" + dialogueText.Length + " chars)");
-                EditorGUILayout.LabelField(new GUIContent(dialogueTextLabel, "Line spoken by actor. If blank, uses Menu Text."));
-                entry.DialogueText = EditorGUILayout.TextArea(dialogueText);
-                DrawLocalizedVersions(entry.fields, "{0}", true, FieldType.Localization);
+                DrawRevisableTextAreaField(new GUIContent(dialogueTextLabel, "Line spoken by actor. If blank, uses Menu Text."), null, currentEntry, dialogueTextField);
+                DrawLocalizedVersions(entry, entry.fields, "{0}", true, FieldType.Localization);
 
                 if (EditorGUI.EndChangeCheck())
                 {
@@ -683,15 +684,14 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
                 // Sequence (including localized if defined):
                 EditorWindowTools.EditorGUILayoutBeginGroup();
 
-                var sequence = entry.Sequence;
+                var sequenceField = Field.Lookup(entry.fields, "Sequence");
                 EditorGUI.BeginChangeCheck();
-                sequence = SequenceEditorTools.DrawLayout(new GUIContent("Sequence", "Cutscene played when speaking this entry. If set, overrides Dialogue Manager's Default Sequence. Drag audio clips to add AudioWait() commands."), entry.Sequence, ref sequenceRect, ref sequenceSyntaxState);
+                sequenceField.value = SequenceEditorTools.DrawLayout(new GUIContent("Sequence", "Cutscene played when speaking this entry. If set, overrides Dialogue Manager's Default Sequence. Drag audio clips to add AudioWait() commands."), sequenceField.value, ref sequenceRect, ref sequenceSyntaxState, entry, sequenceField);
                 if (EditorGUI.EndChangeCheck())
                 {
-                    entry.Sequence = sequence;
-                    dialogueEntryNodeHasSequence[entry.id] = !string.IsNullOrEmpty(sequence);
+                    dialogueEntryNodeHasSequence[entry.id] = !string.IsNullOrEmpty(sequenceField.value);
                 }
-                DrawLocalizedVersions(entry.fields, "Sequence {0}", false, FieldType.Text, true);
+                DrawLocalizedVersions(entry, entry.fields, "Sequence {0}", false, FieldType.Text, true);
 
                 // Response Menu Sequence:
                 bool hasResponseMenuSequence = entry.HasResponseMenuSequence();
@@ -699,7 +699,7 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
                 {
                     EditorGUILayout.LabelField(new GUIContent("Response Menu Sequence", "Cutscene played during response menu following this entry."));
                     entry.ResponseMenuSequence = EditorGUILayout.TextArea(entry.ResponseMenuSequence);
-                    DrawLocalizedVersions(entry.fields, "Response Menu Sequence {0}", false, FieldType.Text);
+                    DrawLocalizedVersions(entry, entry.fields, "Response Menu Sequence {0}", false, FieldType.Text);
                 }
                 else
                 {

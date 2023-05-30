@@ -57,6 +57,13 @@ namespace PixelCrushers
             }
         }
 
+        public static Font GetDefaultFont()
+        {
+            var majorVersion = SafeConvert.ToInt(Application.unityVersion.Split('.')[0]);
+            var fontName = (majorVersion >= 2022) ? "LegacyRuntime.ttf" : "Arial.ttf";
+            return Resources.GetBuiltinResource<Font>(fontName);
+        }
+
     }
 
 }

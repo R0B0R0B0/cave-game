@@ -2,6 +2,7 @@
 
 using UnityEngine;
 using System.Collections.Generic;
+using Language.Lua;
 
 namespace PixelCrushers.DialogueSystem
 {
@@ -936,6 +937,43 @@ namespace PixelCrushers.DialogueSystem
         }
 
         /// <summary>
+        /// Returns true if quest has a field named "Visible" that is currently true or doesn't have the field.
+        /// </summary>
+        public static bool IsQuestVisible(string questName)
+        {
+            var result = Lua.Run($"return Quest[{DialogueLua.StringToTableIndex(questName)}].Visible").asString;
+            if (string.IsNullOrEmpty(result) || string.Equals(result, "nil")) return true;
+            return string.Compare(result, "false", true) == 0;
+        }
+
+        /// <summary>
+        /// Sets a quest's Visible field true or false.
+        /// </summary>
+        public static void SetQuestVisibility(string questName)
+        {
+            DialogueLua.SetQuestField(questName, "Visible", true);
+        }
+
+        /// <summary>
+        /// Returns true if quest has a field named "Viewed" that is currently true.
+        /// Used if QuestLogWindow.newQuestText is not blank.
+        /// </summary>
+        public static bool WasQuestViewed(string questName)
+        {
+            return DialogueLua.GetQuestField(questName, "Viewed").asBool;
+        }
+
+        /// <summary>
+        /// Marks a quest as viewed (i.e., in the quest log window).
+        /// Generally only set/used when QuestLogWindow.newQuestText is not blank.
+        /// </summary>
+        /// <param name="questName"></param>
+        public static void MarkQuestViewed(string questName)
+        {
+            DialogueLua.SetQuestField(questName, "Viewed", true);
+        }
+
+        /// <summary>
         /// Gets the group that a quest belongs to.
         /// </summary>
         /// <returns>The quest group name, or empty string if no group.</returns>
@@ -943,6 +981,13 @@ namespace PixelCrushers.DialogueSystem
         public static string GetQuestGroup(string questName)
         {
             return DialogueLua.GetLocalizedQuestField(questName, "Group").asString;
+        }
+
+        public static string GetQuestGroupDisplayName(string questName)
+        {
+            var result = DialogueLua.GetLocalizedQuestField(questName, "Group Display Name").asString;
+            if (string.IsNullOrEmpty(result) || result == "nil") result = GetQuestGroup(questName);
+            return result;
         }
 
         /// <summary>

@@ -288,9 +288,16 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
             }
             else if (useDisplayNameField)
             {
-                EditTextField(actor.fields, "Display Name", "The name to show in UIs.", false);
-                DrawLocalizedVersions(actor.fields, "Display Name {0}", false, FieldType.Text);
+                if (!hasDisplayNameField && string.IsNullOrEmpty(actor.LookupValue("Display Name")))
+                {
+                    Field.SetValue(actor.fields, "Display Name", actor.Name);
+                }
+                DrawRevisableTextField(displayNameLabel, actor, null, actor.fields, "Display Name");
+                DrawLocalizedVersions(actor, actor.fields, "Display Name {0}", false, FieldType.Text);
             }
+
+            // AI - Voice
+            DrawAIVoiceSelection(actor);
 
             // Portrait Textures:
             actorTexturesFoldout = EditorGUILayout.Foldout(actorTexturesFoldout, new GUIContent("Portrait Textures", "Portrait images using texture assets."));
@@ -373,10 +380,13 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
             }
 
             // Portrait Sprites:
+            EditorGUILayout.BeginHorizontal();
             actorSpritesFoldout = EditorGUILayout.Foldout(actorSpritesFoldout, new GUIContent("Portrait Sprites", "Portrait images using sprite assets."));
+            GUILayout.FlexibleSpace();
+            DrawAIPortraitSprites(actor);
+            EditorGUILayout.EndHorizontal();
             if (actorSpritesFoldout)
             {
-
                 try
                 {
                     var newPortrait = EditorGUILayout.ObjectField(new GUIContent("Portraits", "This actor's portrait. Only necessary if your UI uses portraits."),

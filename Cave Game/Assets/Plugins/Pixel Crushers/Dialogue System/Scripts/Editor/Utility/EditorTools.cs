@@ -221,6 +221,18 @@ namespace PixelCrushers.DialogueSystem
             return string.IsNullOrEmpty(assetName) ? false : (assetName.IndexOf(filter, System.StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
+        private static string[] imageExtensions = { ".png", ".tga", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff", ".psd", ".psb", ".gif", ".pict" };
+
+        public static Sprite TryLoadSprite(string assetPath)
+        {
+            foreach (var ext in imageExtensions)
+            {
+                Sprite sprite = AssetDatabase.LoadAssetAtPath(assetPath + ext, typeof(Sprite)) as Sprite;
+                if (sprite != null) return sprite;
+            }
+            return null;
+        }
+
     }
 
 }

@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Pixel Crushers. All rights reserved.
 
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace PixelCrushers
@@ -84,12 +85,18 @@ namespace PixelCrushers
             // Otherwise check all GameObjects, active and inactive:
             if (checkAllScenes)
             {
-                for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
+                var allRootGOs = new List<GameObject>();
+                var allTransforms = Resources.FindObjectsOfTypeAll<Transform>();
+                foreach (var t in allTransforms)
                 {
-                    var rootGameObjects = UnityEngine.SceneManagement.SceneManager.GetSceneAt(i).GetRootGameObjects();
-                    result = GameObjectHardFindRootObjects(goName, tag, rootGameObjects);
-                    if (result != null) return result;
+                    var root = t.root;
+                    if (root.hideFlags == HideFlags.None)
+                    {
+                        allRootGOs.Add(t.gameObject);
+                    }
                 }
+                result = GameObjectHardFindRootObjects(goName, tag, allRootGOs.ToArray());
+                if (result != null) return result;
                 return null;
             }
             else
@@ -128,25 +135,34 @@ namespace PixelCrushers
         /// </summary>
         public static T[] FindObjectsOfTypeAlsoInactive<T>(bool checkAllScenes = true) where T : Component
         {
-            var list = new System.Collections.Generic.List<T>();
+            var list = new List<T>();
 
-
-            // Otherwise check all GameObjects, active and inactive:
-            if (checkAllScenes)
+            var allT = Resources.FindObjectsOfTypeAll<T>();
+            foreach (var t in allT)
             {
-                for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
+                var root = t.transform.root;
+                if (root.hideFlags == HideFlags.None)
                 {
-                    var rootGameObjects = UnityEngine.SceneManagement.SceneManager.GetSceneAt(i).GetRootGameObjects();
-                    FindObjectsSearchRootObjects<T>(rootGameObjects, list);
+                    list.Add(t);
                 }
             }
-            else
-            {
-                var activeSceneRootGameObjects = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
-                FindObjectsSearchRootObjects<T>(activeSceneRootGameObjects, list);
-            }
-
             return list.ToArray();
+
+            //if (checkAllScenes)
+            //{
+            //    for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
+            //    {
+            //        var rootGameObjects = UnityEngine.SceneManagement.SceneManager.GetSceneAt(i).GetRootGameObjects();
+            //        FindObjectsSearchRootObjects<T>(rootGameObjects, list);
+            //    }
+            //}
+            //else
+            //{
+            //    var activeSceneRootGameObjects = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
+            //    FindObjectsSearchRootObjects<T>(activeSceneRootGameObjects, list);
+            //}
+
+            //return list.ToArray();
         }
 
         private static void FindObjectsSearchRootObjects<T>(GameObject[] rootGameObjects, System.Collections.Generic.List<T> list) where T : Component

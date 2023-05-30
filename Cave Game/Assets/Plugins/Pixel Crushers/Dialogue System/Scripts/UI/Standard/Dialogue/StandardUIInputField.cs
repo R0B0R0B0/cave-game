@@ -54,6 +54,13 @@ namespace PixelCrushers.DialogueSystem
 
         protected TouchScreenKeyboard m_touchScreenKeyboard = null;
 
+        protected bool m_isQuitting = false;
+
+        protected virtual void OnApplicationQuit()
+        {
+            m_isQuitting = true;
+        }
+
         protected override void Start()
         {
             if (DialogueDebug.logWarnings && (inputField == null)) Debug.LogWarning("Dialogue System: No InputField is assigned to the text field UI " + name + ". TextInput() sequencer commands or [var?=] won't work.");
@@ -87,11 +94,13 @@ namespace PixelCrushers.DialogueSystem
         {
             if (m_isAwaitingInput && !DialogueManager.IsDialogueSystemInputDisabled())
             {
-                if (InputDeviceManager.IsKeyDown(acceptKey) || InputDeviceManager.IsButtonDown(acceptButton))
+                if (InputDeviceManager.IsKeyDown(acceptKey) || InputDeviceManager.IsButtonDown(acceptButton) ||
+                    (m_touchScreenKeyboard != null && m_touchScreenKeyboard.status == TouchScreenKeyboard.Status.Done))
                 {
                     AcceptTextInput();
                 }
-                else if (InputDeviceManager.IsKeyDown(cancelKey) || InputDeviceManager.IsButtonDown(cancelButton))
+                else if (InputDeviceManager.IsKeyDown(cancelKey) || InputDeviceManager.IsButtonDown(cancelButton) ||
+                    (m_touchScreenKeyboard != null && m_touchScreenKeyboard.status == TouchScreenKeyboard.Status.Canceled))
                 {
                     CancelTextInput();
                 }
@@ -146,6 +155,7 @@ namespace PixelCrushers.DialogueSystem
 
         protected virtual void Hide()
         {
+            if (m_isQuitting) return;
             Close();
             SetActive(false);
             if (m_touchScreenKeyboard != null)

@@ -226,6 +226,7 @@ namespace PixelCrushers.DialogueSystem
 
             // Get group names, and draw selected quest in its panel while we're at it:
             var groupNames = new List<string>();
+            var groupDisplayNames = new Dictionary<string, string>();
             int numGroupless = 0;
             var repaintedQuestDetails = false;
             if (quests.Length > 0)
@@ -238,9 +239,11 @@ namespace PixelCrushers.DialogueSystem
                         repaintedQuestDetails = true;
                     }
                     var groupName = quest.Group;
+                    var groupDisplayName = string.IsNullOrEmpty(quest.GroupDisplayName) ? quest.Group : quest.GroupDisplayName;
                     if (string.IsNullOrEmpty(groupName)) numGroupless++;
                     if (string.IsNullOrEmpty(groupName) || groupNames.Contains(groupName)) continue;
                     groupNames.Add(groupName);
+                    groupDisplayNames[groupName] = groupDisplayName;
                 }
             }
             if (!repaintedQuestDetails) RepaintSelectedQuest(null);
@@ -250,7 +253,7 @@ namespace PixelCrushers.DialogueSystem
             {
                 var groupFoldout = selectionPanelContentManager.Instantiate<StandardUIFoldoutTemplate>(questGroupTemplate);
                 selectionPanelContentManager.Add(groupFoldout, questSelectionContentContainer);
-                groupFoldout.Assign(groupName, IsGroupExpanded(groupName));
+                groupFoldout.Assign(groupDisplayNames[groupName], IsGroupExpanded(groupName));
                 var targetGroupName = groupName;
                 var targetGroupFoldout = groupFoldout;
                 if (!keepGroupsExpanded)

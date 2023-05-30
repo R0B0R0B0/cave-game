@@ -266,7 +266,12 @@ namespace PixelCrushers.DialogueSystem
         /// <value>
         /// <c>true</c> if the conversation is active; otherwise, <c>false</c>.
         /// </value>
-        public bool isConversationActive { get { return (m_conversationController != null) && m_conversationController.isActive; } }
+        public bool isConversationActive { get { return isAlternateConversationActive || ((m_conversationController != null) && m_conversationController.isActive); } }
+
+        /// <summary>
+        /// Set true to make isConversationActive report true even if a regular conversation isn't currently active.
+        /// </summary>
+        public bool isAlternateConversationActive { get; set; } = false;
 
         /// <summary>
         /// Gets the current actor of the last conversation started if a conversation is active.
@@ -717,7 +722,13 @@ namespace PixelCrushers.DialogueSystem
         public bool ConversationHasValidEntry(string title, Transform actor, Transform conversant, int initialDialogueEntryID = -1)
         {
             if (string.IsNullOrEmpty(title)) return false;
+            var prevCurrentActor = currentActor;
+            var prevCurrentConversant = currentConversant;
+            currentActor = actor;
+            currentConversant = conversant;
             var model = new ConversationModel(m_databaseManager.masterDatabase, title, actor, conversant, allowLuaExceptions, isDialogueEntryValid, initialDialogueEntryID, true, true);
+            currentActor = prevCurrentActor;
+            currentConversant = prevCurrentConversant;
             return model.hasValidEntry;
         }
 
@@ -875,9 +886,14 @@ namespace PixelCrushers.DialogueSystem
                 warmupStandardDialogueUI.conversationUIElements.HideImmediate();
             }
             warmupController.Close();
-            foreach (var panel in warmupStandardDialogueUI.conversationUIElements.subtitlePanels)
+            if (warmupStandardDialogueUI != null &&
+                warmupStandardDialogueUI.conversationUIElements != null &&
+                warmupStandardDialogueUI.conversationUIElements.subtitlePanels != null)
             {
-                if (panel != null) panel.panelState = UIPanel.PanelState.Closed;
+                foreach (var panel in warmupStandardDialogueUI.conversationUIElements.subtitlePanels)
+                {
+                    if (panel != null) panel.panelState = UIPanel.PanelState.Closed;
+                }
             }
             masterDatabase.conversations.Remove(fakeConversation);
             DialogueDebug.level = warmupPreviousLogLevel;
@@ -974,12 +990,12 @@ namespace PixelCrushers.DialogueSystem
             {
                 if (actor == null) actor = FindActorTransformFromConversation(title, "Actor");
                 if (conversant == null) conversant = FindActorTransformFromConversation(title, "Conversant");
+                CheckDebugLevel();
                 if (DialogueDebug.logInfo) Debug.Log(string.Format("{0}: Starting conversation '{1}', actor={2}, conversant={3}.", new System.Object[] { DialogueDebug.Prefix, title, actor, conversant }), actor);
                 if (warnIfActorAndConversantSame && (actor != null) && (actor == conversant))
                 {
                     if (DialogueDebug.logWarnings) Debug.LogWarning(string.Format("{0}: Actor and conversant are the same GameObject.", new System.Object[] { DialogueDebug.Prefix }));
                 }
-                CheckDebugLevel();
 
                 // Save currentActor, Conversation, Conversation in case we need to back out:
                 var prevActor = currentActor;
@@ -2070,6 +2086,9 @@ namespace PixelCrushers.DialogueSystem
             Lua.RegisterFunction("GetEntryNumber", null, SymbolExtensions.GetMethodInfo(() => GetEntryNumber((double)0, string.Empty)));
             Lua.RegisterFunction("Conditional", null, SymbolExtensions.GetMethodInfo(() => Conditional(false, string.Empty)));
             Lua.RegisterFunction("ChangeActorName", this, SymbolExtensions.GetMethodInfo(() => ChangeActorName(string.Empty, string.Empty)));
+            Lua.RegisterFunction("ActorIDToName", this, SymbolExtensions.GetMethodInfo(() => ActorIDToName(0)));
+            Lua.RegisterFunction("ItemIDToName", this, SymbolExtensions.GetMethodInfo(() => ItemIDToName(0)));
+            Lua.RegisterFunction("QuestIDToName", this, SymbolExtensions.GetMethodInfo(() => ItemIDToName(0)));
             // Register DialogueLua in case they got unregistered:
             DialogueLua.RegisterLuaFunctions();
         }
@@ -2085,6 +2104,9 @@ namespace PixelCrushers.DialogueSystem
             Lua.UnregisterFunction("GetEntryNumber");
             Lua.UnregisterFunction("Conditional");
             Lua.UnregisterFunction("ChangeActorName");
+            Lua.UnregisterFunction("ActorIDToName");
+            Lua.UnregisterFunction("ItemIDToName");
+            Lua.UnregisterFunction("QuestIDToName");
         }
 
         public void SendUpdateTracker()
@@ -2157,6 +2179,17 @@ namespace PixelCrushers.DialogueSystem
             }
         }
 
+        public static string ActorIDToName(double id)
+        {
+            var asset = DialogueManager.masterDatabase.GetActor((int)id);
+            return (asset != null) ? asset.Name : null;
+        }
+
+        public static string ItemIDToName(double id)
+        {
+            var asset = DialogueManager.masterDatabase.GetItem((int)id);
+            return (asset != null) ? asset.Name : null;
+        }
 
         /// <summary>
         /// Adds a Lua expression observer.
@@ -2481,7 +2514,7 @@ namespace PixelCrushers.DialogueSystem
             Destroy(watermark.GetComponent<UnityEngine.UI.CanvasScaler>());
             var text = watermark.AddComponent<UnityEngine.UI.Text>();
             text.text = "Dialogue System\nEvaluation Version";
-            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.font = UIUtility.GetDefaultFont();
             text.fontSize = 24;
             text.fontStyle = FontStyle.Bold;
             text.color = new Color(1, 1, 1, 0.75f);

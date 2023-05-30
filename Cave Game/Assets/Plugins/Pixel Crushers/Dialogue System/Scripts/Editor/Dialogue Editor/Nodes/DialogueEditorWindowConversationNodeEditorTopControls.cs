@@ -115,6 +115,7 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
             {
                 AddNewConversationToNodeEditor();
             }
+            DrawAIGenerateConversationButton();
             DrawNextConversationButton();
             DrawConversationFilter();
             DrawZoomSlider();
@@ -156,6 +157,24 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
             if (EditorGUI.EndChangeCheck())
             {
                 ResetNodeEditorConversationList();
+            }
+            // [Contributed by Vladimir Beletsky: Pressing Return jumps to first conversation matching filter.
+            if (Event.current.keyCode == KeyCode.Return &&
+                !string.IsNullOrEmpty(conversationTitleFilter) &&
+                GUI.GetNameOfFocusedControl() == "ConversationFilterTextField" &&
+                database != null)
+            {
+                var filter = conversationTitleFilter.ToLower();
+                foreach (var conversation in database.conversations)
+                {
+                    if (conversation == null) continue;
+                    var title = conversation.Title.ToLower();
+                    if (title.Contains(filter))
+                    {
+                        OpenConversation(conversation);
+                        break;
+                    }
+                }
             }
         }
 

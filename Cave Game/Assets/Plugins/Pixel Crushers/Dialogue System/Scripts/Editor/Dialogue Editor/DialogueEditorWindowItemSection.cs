@@ -43,7 +43,12 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
 
         private int isAddingNewFieldToEntryNumber = -1;
         private Field newEntryField;
-        
+
+        private static GUIContent questDescriptionLabel = new GUIContent("Description", "The description when the quest is active.");
+        private static GUIContent questSuccessDescriptionLabel = new GUIContent("Success Description", "The description when the quest has been completed successfully. If blank, the Description field is used.");
+        private static GUIContent questFailureDescriptionLabel = new GUIContent("Failure Description", "The description when the quest has failed. If blank, the Description field is used.");
+        private static GUIContent groupLabel = new GUIContent("Group", "Use to categorize quests into groups.");
+
         private void ResetItemSection()
         {
             itemFoldouts = new AssetFoldouts();
@@ -370,8 +375,8 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
             }
             else if (useDisplayNameField)
             {
-                EditTextField(item.fields, "Display Name", "The name to show in UIs.", false);
-                DrawLocalizedVersions(item.fields, "Display Name {0}", false, FieldType.Text);
+                DrawRevisableTextField(displayNameLabel, item, null, item.fields, "Display Name");
+                DrawLocalizedVersions(item, item.fields, "Display Name {0}", false, FieldType.Text);
             }
 
             // Group:
@@ -393,8 +398,8 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
                 }
                 if (groupField.typeString == "CustomFieldType_Text")
                 {
-                    EditTextField(item.fields, "Group", "The group this quest belongs to.", false);
-                    DrawLocalizedVersions(item.fields, "Group {0}", false, FieldType.Text);
+                    DrawRevisableTextField(groupLabel, item, null, groupField);
+                    DrawLocalizedVersions(item, item.fields, "Group {0}", false, FieldType.Text);
                 }
                 else
                 {
@@ -454,12 +459,12 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
             DrawOtherQuestPrimaryFields(item);
 
             // Descriptions:
-            EditTextField(item.fields, "Description", "The description when the quest is active.", true);
-            DrawLocalizedVersions(item.fields, "Description {0}", false, FieldType.Text);
-            EditTextField(item.fields, "Success Description", "The description when the quest has been completed successfully. If blank, the Description field is used.", true);
-            DrawLocalizedVersions(item.fields, "Success Description {0}", false, FieldType.Text);
-            EditTextField(item.fields, "Failure Description", "The description when the quest has failed. If blank, the Description field is used.", true);
-            DrawLocalizedVersions(item.fields, "Failure Description {0}", false, FieldType.Text);
+            DrawRevisableTextAreaField(questDescriptionLabel, item, null, item.fields, "Description");
+            DrawLocalizedVersions(item, item.fields, "Description {0}", false, FieldType.Text);
+            DrawRevisableTextAreaField(questSuccessDescriptionLabel, item, null, item.fields, "Success Description");
+            DrawLocalizedVersions(item, item.fields, "Success Description {0}", false, FieldType.Text);
+            DrawRevisableTextAreaField(questFailureDescriptionLabel, item, null, item.fields, "Failure Description");
+            DrawLocalizedVersions(item, item.fields, "Failure Description {0}", false, FieldType.Text);
 
             // Entries:
             if (newHasQuestEntries) DrawQuestEntries(item);
@@ -525,7 +530,6 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
             }
 
             EditorWindowTools.StartIndentedSection();
-            //int entryCount = Field.LookupInt(item.fields, "Entry Count");
             int entryToDelete = -1;
             int entryToMoveUp = -1;
             int entryToMoveDown = -1;
@@ -538,6 +542,7 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
             {
                 DeleteQuestEntry(item, entryToDelete, entryCount);
                 SetDatabaseDirty("Delete Quest Entry");
+                GUIUtility.ExitGUI();
             }
             if (entryToMoveUp != -1)
             {
@@ -647,8 +652,8 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
             alreadyDrawn.Add(stateField);
 
             // Text:
-            EditTextField(item.fields, entryTitle, "The text of this entry.", true, alreadyDrawn);
-            DrawLocalizedVersions(item.fields, entryTitle + " {0}", false, FieldType.Text, alreadyDrawn);
+            DrawRevisableTextField(new GUIContent(entryTitle), item, null, item.fields, entryTitle);
+            DrawLocalizedVersions(item, null, item.fields, entryTitle + " {0}", false, FieldType.Text, alreadyDrawn);
 
             // Other "Entry # " fields:
             string entryTitleWithSpace = entryTitle + " ";

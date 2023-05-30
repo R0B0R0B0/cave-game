@@ -115,12 +115,13 @@ namespace PixelCrushers.DialogueSystem
             titlesDatabase = EditorTools.selectedDatabase;
             var foundCurrent = false;
             var list = new List<string>();
+            var lowercaseFilter = string.IsNullOrEmpty(filter) ? string.Empty : filter.ToLower();
             if (titlesDatabase != null && titlesDatabase.conversations != null)
             {
                 for (int i = 0; i < titlesDatabase.conversations.Count; i++)
                 {
                     var title = titlesDatabase.conversations[i].Title;
-                    if (!string.IsNullOrEmpty(filter) && !title.Contains(filter)) continue;
+                    if (!string.IsNullOrEmpty(filter) && !title.ToLower().Contains(filter)) continue;
                     list.Add(title);
                     if (string.Equals(currentConversation, title))
                     {

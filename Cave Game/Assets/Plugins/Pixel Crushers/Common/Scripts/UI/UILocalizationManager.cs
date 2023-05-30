@@ -47,6 +47,7 @@ namespace PixelCrushers
         public LocalizedFonts localizedFonts { get { return m_localizedFonts; } set { m_localizedFonts = value; } }
 
         private static UILocalizationManager s_instance = null;
+        private static bool s_isQuitting = false;
 
         /// <summary>
         /// Current global instance of UILocalizationManager. If one doesn't exist,
@@ -56,7 +57,7 @@ namespace PixelCrushers
         {
             get
             {
-                if (s_instance == null)
+                if (s_instance == null && !s_isQuitting)
                 {
                     s_instance = FindObjectOfType<UILocalizationManager>();
                     if (s_instance == null && Application.isPlaying)
@@ -79,8 +80,14 @@ namespace PixelCrushers
         static void InitStaticVariables()
         {
             s_instance = null;
+            s_isQuitting = false;
         }
 #endif
+
+        private void OnApplicationQuit()
+        {
+            s_isQuitting = true;
+        }
 
         /// <summary>
         /// Overrides the global text table.

@@ -24,6 +24,7 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
             Lua.RegisterFunction(nameof(sqr), null, SymbolExtensions.GetMethodInfo(() => sqr(0)));
             Lua.RegisterFunction(nameof(sqrt), null, SymbolExtensions.GetMethodInfo(() => sqrt(0)));
             Lua.RegisterFunction(nameof(random), null, SymbolExtensions.GetMethodInfo(() => random()));
+            Lua.RegisterFunction(nameof(visits), null, SymbolExtensions.GetMethodInfo(() => visits(string.Empty)));
             Lua.environment.Register(nameof(roll), roll);
             Lua.environment.Register(nameof(show), show);
         }
@@ -81,6 +82,11 @@ namespace PixelCrushers.DialogueSystem.ArcweaveSupport
                 s += value.ToString();
             }
             return new LuaString(s);
+        }
+
+        public static double visits(string id)
+        {
+            return 0; //[TODO] Not implemented yet.
         }
 
     }

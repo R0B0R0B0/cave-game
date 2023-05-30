@@ -59,7 +59,7 @@ namespace PixelCrushers.DialogueSystem
                 {
                     // Remember the last entry we used:
                     var lastEntry = (entries.Count > 0) ? entries[entries.Count - 1] : 0;
-                    // Make a shuffles
+                    // Reshuffle the list:
                     entries.Clear();
                     for (int i = 0; i < numEntries; i++)
                     {

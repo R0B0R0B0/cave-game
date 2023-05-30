@@ -1,10 +1,14 @@
 .button {
     height: 30%;
     width: 200px;
+    -unity-font-definition: url('project://database/Assets/Imports/Fonts/Silkscreen/Silkscreen-Regular%20SDF.asset?fileID=11400000&guid=f489d15ea28296148834ae21c9450f2a&type=2#Silkscreen-Regular SDF');
+    color: rgba(255, 255, 255, 255);
+    background-color: rgba(75, 75, 75, 255);
 }
 
 .text {
     font-size: 75px;
     -unity-font: none;
-    -unity-font-definition: url('project://database/Assets/Imports/Silkscreen/Silkscreen-Regular%20SDF.asset?fileID=11400000&guid=f489d15ea28296148834ae21c9450f2a&type=2#Silkscreen-Regular SDF');
+    -unity-font-definition: url('project://database/Assets/Imports/Fonts/joystix.asset?fileID=11400000&guid=00b9eda421c0ac54f85d14abf91a5568&type=2#joystix');
+    color: rgb(255, 255, 255);
 }

@@ -17,6 +17,16 @@ namespace PixelCrushers.DialogueSystem
 
         private List<QuestStateListener> m_listeners = new List<QuestStateListener>();
 
+        private void OnEnable()
+        {
+            SaveSystem.saveDataApplied += UpdateListeners;
+        }
+
+        private void OnDisable()
+        {
+            SaveSystem.saveDataApplied -= UpdateListeners;
+        }
+
         public void AddListener(QuestStateListener listener)
         {
             if (listener == null) return;
@@ -28,11 +38,22 @@ namespace PixelCrushers.DialogueSystem
             m_listeners.Remove(listener);
         }
 
+        private void UpdateListeners()
+        {
+            for (int i = 0; i < m_listeners.Count; i++)
+            {
+                var listener = m_listeners[i];
+                if (listener == null) continue;
+                listener.UpdateIndicator();
+            }
+        }
+
         public void OnQuestStateChange(string questName)
         {
             for (int i = 0; i < m_listeners.Count; i++)
             {
                 var listener = m_listeners[i];
+                if (listener == null) continue;
                 if (string.Equals(questName, listener.questName))
                 {
                     listener.OnChange();

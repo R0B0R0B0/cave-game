@@ -21,6 +21,7 @@ namespace PixelCrushers.DialogueSystem.SequencerCommands
         protected AudioClip originalClip = null;
         protected bool restoreOriginalClip = false; // Don't restore; could stop next entry's AudioWait that runs same frame.
         protected bool playedAudio = false;
+        protected bool isLoadingAudio = false;
 
         public virtual IEnumerator Start()
         {
@@ -65,9 +66,11 @@ namespace PixelCrushers.DialogueSystem.SequencerCommands
                 else
                 {
                     this.audioClipName = audioClipName;
+                    isLoadingAudio = true;
                     DialogueManager.LoadAsset(audioClipName, typeof(AudioClip),
                         (asset) =>
                         {
+                            isLoadingAudio = false;
                             var audioClip = asset as AudioClip;
                             if (audioClip == null)
                             {
@@ -113,14 +116,17 @@ namespace PixelCrushers.DialogueSystem.SequencerCommands
                     DialogueManager.UnloadAsset(currentClip);
                 }
                 currentClip = null;
-                if (nextClipIndex < parameters.Length)
+                if (!isLoadingAudio)
                 {
-                    TryAudioClip(GetParameter(nextClipIndex));
-                    nextClipIndex++;
-                }
-                else
-                {
-                    Stop();
+                    if (nextClipIndex < parameters.Length)
+                    {
+                        TryAudioClip(GetParameter(nextClipIndex));
+                        nextClipIndex++;
+                    }
+                    else
+                    {
+                        Stop();
+                    }
                 }
             }
         }

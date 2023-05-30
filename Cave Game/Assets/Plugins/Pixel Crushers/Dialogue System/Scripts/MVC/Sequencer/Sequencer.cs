@@ -2504,7 +2504,9 @@ namespace PixelCrushers.DialogueSystem
             if (actor == null)
             {
                 var actorGameObject = SequencerTools.GetSubject(actorName, speaker, listener, speaker);
-                actor = DialogueManager.masterDatabase.GetActor(DialogueActor.GetActorName(actorGameObject));
+                var dialogueActor = DialogueActor.GetDialogueActorComponent(actorGameObject);
+                if (dialogueActor != null && !string.IsNullOrEmpty(dialogueActor.actor)) actorName = dialogueActor.actor;
+                actor = DialogueManager.masterDatabase.GetActor(actorName);
                 if (actor != null) actorName = actor.Name;
             }
             bool isDefault = string.Equals(textureName, "default");

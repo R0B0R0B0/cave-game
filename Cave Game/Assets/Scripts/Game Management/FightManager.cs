@@ -59,14 +59,14 @@ public class FightManager : MonoBehaviour
     public float speed = 1;
 
     //player stuff
-    float playerHealth = 10;
-    float playerMaxHealth = 10;
+    float playerHealth = 200;
+    float playerMaxHealth = 200;
     float playerDamage = 1;
 
     //Enemy stuff
     Enemy enemy;
 
-    float enemyHealth = 10;
+    float enemyHealth = 200;
     float enemyMaxHealth = 10;
     float enemyDamage = 1;
     float enemyDefence = 0;
@@ -148,6 +148,9 @@ public class FightManager : MonoBehaviour
         //Disables player
         GameManager.Instance.player.SetActive(false);
 
+        //Uodates player healthbar
+        OnPlayerHealthChanged();
+
         //Setup variables
         enemyMaxHealth = enemy.health;
         enemyHealth = enemyMaxHealth;
@@ -192,6 +195,8 @@ public class FightManager : MonoBehaviour
         SetupBattle();
 
         state = BattleState.PLAYERTURN;
+
+        PlayerTurn();
     }
     public void EndFight()
     {
@@ -254,6 +259,8 @@ public class FightManager : MonoBehaviour
         battleAreaObject.SetActive(true);
         attackUI.peitto.SetActive(false);
 
+        playerRigidbody.transform.position = battleArea.transform.position;
+
         //Action
         StartEnemyAttack();
     }
@@ -299,63 +306,9 @@ public class FightManager : MonoBehaviour
         state = BattleState.PLAYERTURN;
         PlayerTurn();
     }
-
-    /*
-    IEnumerator EnemyAttack()
-    {
-        //Check
-        if (state != BattleState.ENEMYTURN)
-        {
-            yield return null;
-        }
-
-        //UI
-        attackUI.peitto.SetActive(false);
-        playArea.SetActive(true);
-
-        //Action
-        playerTransform.position = playerSpawnPoint.position;
-        for (int i = 0; i < 10; i++)
-        {
-            spawnPoint.position = new Vector2(playerTransform.position.x, spawnPoint.position.y);
-            Instantiate(pee, spawnPoint.position, spawnPoint.rotation);
-
-            float x = 0;
-
-            float a = 1;
-            float b = 2;
-
-            float k = 0;
-            float h = 0; 
-
-            float y = a * Mathf.Sin((x - h) / b) + k;
-    
-
-            yield return new WaitForSeconds(.5f);
-        }
-
-        yield return new WaitForSeconds(1);
-
-        state = BattleState.PLAYERTURN;
-        PlayerTurn();
-        yield return null;
-
-    }
-    */
     #endregion
 
-    //Callbacks
-    public void PelletHit()
-    {
-        playerHealth -= enemyDamage;
-        OnPlayerHealthChanged();
 
-        if (playerHealth <= 0)
-        {
-            state = BattleState.LOST;
-            EndFight();
-        }
-    }
 
     public void AnimationEnded(bool hasAnimationEnded)
     {
@@ -375,6 +328,19 @@ public class FightManager : MonoBehaviour
         }
 
         PlayerAttack();
+    }
+
+    //Other Callbacks ??
+    public void PelletHit()
+    {
+        playerHealth -= enemyDamage;
+        OnPlayerHealthChanged();
+
+        if (playerHealth <= 0)
+        {
+            state = BattleState.LOST;
+            EndFight();
+        }
     }
     #endregion
 

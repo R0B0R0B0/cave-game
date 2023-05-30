@@ -17,6 +17,7 @@ public class Pellet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        Debug.Log("Trigger");
         if (collision.CompareTag("Player"))
         {
             GameManager.Instance.GetComponent<FightManager>().PelletHit();

@@ -125,14 +125,27 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
         {
             if (vertically)
             {
-                float treeWidth = GetTreeWidth(tree);
-                float x = AutoStartX;
-                if (orphans.Count > 0) x += canvasRectWidth + AutoWidthBetweenNodes;
-                float y = AutoStartY;
-                for (int level = 0; level < tree.Count; level++)
+                if (currentConversation == null || currentConversation.dialogueEntries == null || currentConversation.dialogueEntries.Count == 0) return;
+                if (multinodeSelection != null && multinodeSelection.nodes.Count > 1)
                 {
-                    ArrangeLevel(tree[level], x, y, treeWidth, 0, vertically);
-                    y += canvasRectHeight + AutoHeightBetweenNodes;
+                    // Use old algorithm for subsections of conversation tree:
+                    float treeWidth = GetTreeWidth(tree);
+                    float x = AutoStartX;
+                    if (orphans.Count > 0) x += canvasRectWidth + AutoWidthBetweenNodes;
+                    float y = AutoStartY;
+                    for (int level = 0; level < tree.Count; level++)
+                    {
+                        ArrangeLevel(tree[level], x, y, treeWidth, 0, vertically);
+                        y += canvasRectHeight + AutoHeightBetweenNodes;
+                    }
+                }
+                else
+                {
+                    // Use new algorithm provided by digiwombat [Fairmoon Museum]:
+                    CalculatePositions(currentConversation.dialogueEntries[0], 0, 0);
+                    visited.Clear();
+                    subtreeVisited.Clear();
+                    subTreeWidths.Clear();
                 }
             }
             else
@@ -148,6 +161,95 @@ namespace PixelCrushers.DialogueSystem.DialogueEditor
                 }
             }
         }
+
+
+        #region digiwombat's contribution (Thank you!)
+
+        private float HorizontalSpacing => canvasRectWidth * 0.3f; // The horizontal spacing between nodes
+        private float VerticalSpacing => canvasRectHeight + 24; // The vertical spacing between nodes
+
+        private HashSet<DialogueEntry> visited = new HashSet<DialogueEntry>();
+        private HashSet<DialogueEntry> subtreeVisited = new HashSet<DialogueEntry>();
+        private Dictionary<DialogueEntry, float> subTreeWidths = new Dictionary<DialogueEntry, float>();
+
+        // Calculate the positions of all nodes recursively
+        private void CalculatePositions(DialogueEntry node, int level, float offset)
+        {
+            if (node == null) return;
+
+            // If the node has been visited before, return
+            if (visited.Contains(node)) return;
+
+            // Mark the node as visited
+            visited.Add(node);
+
+            // Calculate the width of the subtree rooted at this node
+            float subtreeWidth = GetSubtreeWidth(node);
+
+            node.canvasRect = new Rect(0, 0, canvasRectWidth, canvasRectHeight);
+            // Set the X position of this node to be the center of its subtree
+            node.canvasRect.x = offset + subtreeWidth / 2;
+
+            // Set the Y position of this node to be based on its level
+            node.canvasRect.y = level * (canvasRectHeight + VerticalSpacing) + 50;
+            // Recursively calculate the positions of the child nodes
+            float childOffset = offset;
+            foreach (Link childLink in node.outgoingLinks)
+            {
+                if (childLink.destinationConversationID != currentConversation.id)
+                {
+                    continue;
+                }
+                DialogueEntry child = currentConversation.GetDialogueEntry(childLink.destinationDialogueID);
+                CalculatePositions(child, level + 1, childOffset);
+                childOffset += GetSubtreeWidth(child) + HorizontalSpacing;
+            }
+        }
+
+        // Calculate the width of the subtree rooted at a node
+        private float GetSubtreeWidth(DialogueEntry node)
+        {
+            if (node == null) return 0;
+
+            // If the node has no children, return its own width
+            if (node.outgoingLinks.Count == 0) return canvasRectWidth;
+
+            // Check if we've been to this subtree before so we don't infinite loop
+            if (subtreeVisited.Contains(node))
+            {
+                if (subTreeWidths.ContainsKey(node))
+                {
+                    return subTreeWidths[node];
+                }
+                else
+                {
+                    return canvasRectWidth;
+                }
+            }
+
+            subtreeVisited.Add(node);
+            // Otherwise, return the sum of the widths of its children and the spacings between them
+            float width = 0;
+            foreach (Link childLink in node.outgoingLinks)
+            {
+                if (childLink.destinationConversationID != currentConversation.id)
+                {
+                    continue;
+                }
+                DialogueEntry child = currentConversation.GetDialogueEntry(childLink.destinationDialogueID);
+                if (!subtreeVisited.Contains(child))
+                {
+                    width += GetSubtreeWidth(child) + HorizontalSpacing;
+                }
+            }
+            width -= HorizontalSpacing; // Subtract the extra spacing at the end
+
+            // Return the maximum of the node's own width and its children's width
+            subTreeWidths[node] = Mathf.Max(width, canvasRectWidth);
+            return subTreeWidths[node];
+        }
+
+        #endregion
 
         private void ArrangeLevel(List<DialogueEntry> nodes, float x, float y, float treeWidth, float treeHeight, bool vertically)
         {
