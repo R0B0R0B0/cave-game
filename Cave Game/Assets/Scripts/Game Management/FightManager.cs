@@ -112,6 +112,11 @@ public class FightManager : MonoBehaviour
     private void Update()
     {
         playerInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
+
+        if(Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.T) && state != BattleState.LOST)
+        {
+            EndFight();
+        }
     }
 
     void FixedUpdate()
@@ -175,7 +180,7 @@ public class FightManager : MonoBehaviour
         colliders[3].size = new Vector2(thickness, size.y);
         colliders[3].offset = new Vector2(-size.x / 2 - thickness / 2, 0);
 
-        gfx.transform.localScale = size;
+        gfx.transform.localScale = new Vector3(size.x + thickness / 2,size.y + thickness / 2, 1);
     }
 
     #endregion
@@ -321,13 +326,10 @@ public class FightManager : MonoBehaviour
     //Button callbacks
     public void OnAttackButton()
     {
-        Debug.Log(state);
-        if (state != BattleState.PLAYERTURN)
+        if (state == BattleState.PLAYERTURN)
         {
-            return;
+            PlayerAttack();
         }
-
-        PlayerAttack();
     }
 
     //Other Callbacks ??

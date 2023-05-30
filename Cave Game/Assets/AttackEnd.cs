@@ -10,6 +10,8 @@ public class AttackEnd : StateMachineBehaviour
         base.OnStateEnter(animator, stateInfo, layerIndex);
 
         GameManager.Instance.FightManager.AnimationEnded(true);
+
+        
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
