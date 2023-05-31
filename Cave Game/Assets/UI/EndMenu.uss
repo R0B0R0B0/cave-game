@@ -6,12 +6,12 @@
 
 .main_text {
     font-size: 100px;
-    color: rgba(255, 255, 255, 255);
+    color: rgb(255, 255, 255);
     -unity-font-definition: url('project://database/Assets/Imports/Fonts/joystix.asset?fileID=11400000&guid=00b9eda421c0ac54f85d14abf91a5568&type=2#joystix');
 }
 
 .plain_text {
-    font-size: 31px;
-    color: rgba(255, 255, 255, 255);
+    font-size: 22px;
+    color: rgb(255, 255, 255);
     -unity-font-definition: url('project://database/Assets/Imports/Fonts/joystix.asset?fileID=11400000&guid=00b9eda421c0ac54f85d14abf91a5568&type=2#joystix');
 }

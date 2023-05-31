@@ -161,6 +161,7 @@ public class FightManager : MonoBehaviour
         enemyHealth = enemyMaxHealth;
         enemyDamage = enemy.damage;
 
+
     }
 
     void SetPlayArea(BoxCollider2D[] colliders, Vector2 size, GameObject gfx)
@@ -199,6 +200,10 @@ public class FightManager : MonoBehaviour
 
         SetupBattle();
 
+
+        //Change musics to battle music
+        GameManager.Instance.ChangeMusic(1);
+
         state = BattleState.PLAYERTURN;
 
         PlayerTurn();
@@ -212,6 +217,10 @@ public class FightManager : MonoBehaviour
 
         //Changes from the current camera to main camera
         GameManager.Instance.ChangeView(Cameras.Base);
+
+
+        //Change musics to normal music
+        GameManager.Instance.ChangeMusic(0);
     }
 
     //Player

@@ -25,8 +25,6 @@ public class GameManager : MonoBehaviour
         Instance = this;
 
        // DontDestroyOnLoad(this);
-
-        SceneManager.activeSceneChanged += OnSceneLoaded;
     }
     #endregion
 
@@ -40,16 +38,19 @@ public class GameManager : MonoBehaviour
     public Transform startPosition;
     [Header("Prefabs")]
     public GameObject playerPrefab;
-
+    [Header("Musics")]
+    public AudioClip[] musics;
+    public AudioSource source;
 
     public GameObject player;
 
     public bool hasPlayer;
     public float health;
 
-    public void OnEndPositionTriggered(int exitID)
+    private void Start()
     {
-        ChangeScene("Level 2");
+        ChangeMusic(0);
+        OnLevelStart();
     }
 
     void OnLevelStart()
@@ -65,25 +66,9 @@ public class GameManager : MonoBehaviour
             player = Instantiate(player,Vector3.zero,Quaternion.identity);
         }
 
-    }
 
-    /// <summary>
-    /// This is called when the scene is loaded
-    /// </summary>
-    public void OnSceneLoaded(Scene current, Scene next)
-    {
-        OnLevelStart();
-    }
+ 
 
-    /// <summary>
-    /// This checks if next level can be loaded and calls LevelManager to load the next scene
-    /// </summary>
-    /// <param name="name"></param>
-    void ChangeScene(string name)
-    {
-        //Check if objectives are filled if any
-        
-        LevelManager.LoadScene(name);
     }
 
     public void ChangeView(Cameras camera)
@@ -92,6 +77,13 @@ public class GameManager : MonoBehaviour
         {
             CameraController.SwitchCamera(cameras[(int)camera]);
         }
+    }
+
+    public void ChangeMusic(int index)
+    {
+        source.Stop();
+        source.clip = musics[index];
+        source.Play();
     }
 
     private void OnEnable()
@@ -109,6 +101,8 @@ public class GameManager : MonoBehaviour
         {
             CameraController.UnRegister(cameras[i]);
         }
+
+        source.Stop();
     }
 
 }
