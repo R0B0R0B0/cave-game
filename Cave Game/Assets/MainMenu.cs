@@ -14,6 +14,14 @@ public class MainMenu : MonoBehaviour
         audioData.Play(0);
     }
 
+    private void Update()
+    {
+        if (!audioData.isPlaying)
+        {
+            audioData.Play();
+        }
+    }
+
     private void OnEnable()
     {
         VisualElement root = GetComponent<UIDocument>().rootVisualElement;

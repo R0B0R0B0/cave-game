@@ -86,6 +86,14 @@ public class GameManager : MonoBehaviour
         source.Play();
     }
 
+    private void Update()
+    {
+        if (!source.isPlaying)
+        {
+            source.Play();
+        }
+    }
+
     private void OnEnable()
     {
         for (int i = 0; i < cameras.Length; i++)
